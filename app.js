@@ -315,8 +315,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: "dontInvert" });
       if (code) {
         console.log("QR Encontrado:", code.data);
-        getQrStatus()?.textContent = '¡QR Detectado!';
-        getQrStatus()?.style.color = '#00ffff';
+        const qrStatus = getQrStatus();
+        if (qrStatus) qrStatus.textContent = '¡QR Detectado!';
+        if (qrStatus) qrStatus.style.color = '#00ffff';
         qrValue.textContent = code.data;
       }
     }
