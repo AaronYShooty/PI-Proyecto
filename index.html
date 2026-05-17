@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+  <title>Walter Sports · Mundial AR 2026</title>
+  <link rel="icon" href="assets/Walter Icono.ico" type="image/x-icon">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.2.0/dist/aframe-extras.min.js"></script>
+  <script src="lib/jsQR.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap');
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    :root {
+      --bg-deep: #070b17;
+      --text-primary: #ffffff;
+      --accent: #4fe0b5;
+      --color-1: #6e6e6e;
+      --color-2: #67a0b9;
+      --color-3: #1fb9b9;
+      --color-4: #1185b9;
+    }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: linear-gradient(135deg, #0b1020 0%, #0f1a2f 50%, #0b1020 100%);
+      color: var(--text-primary);
+      margin: 0;
+    }
+    .hero {
+      min-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 2rem;
+      position: relative;
+      z-index: 1;
+      background: url('assets/Fondo.jpg') center center / cover no-repeat;
+      border-radius: 0 0 32px 32px;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(11,16,32,0.75) 0%, rgba(15,26,47,0.85) 100%);
+      pointer-events: none;
+      z-index: -1;
+      border-radius: 0 0 32px 32px;
+    }
+    [data-screen="s2"] { background: linear-gradient(135deg, #2a2a2a 0%, #4a5a6a 100%); position: relative; }
+    [data-screen="s2"]::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 20% 40%, rgba(103,160,185,0.15) 0%, transparent 60%); pointer-events: none; }
+    [data-screen="s3"] { background: linear-gradient(145deg, #0a2a2a 0%, #0d4a4a 50%, #0a2a2a 100%); position: relative; }
+    [data-screen="s3"]::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 80% 20%, rgba(31,185,185,0.2) 0%, transparent 70%); pointer-events: none; }
+    [data-screen="s4"] { background: linear-gradient(160deg, #0a2030 0%, #0c3550 50%, #0a2030 100%); position: relative; }
+    [data-screen="s4"]::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 50% 30%, rgba(17,133,185,0.25) 0%, transparent 70%); pointer-events: none; }
+    [data-screen="s5"] { background: linear-gradient(135deg, #1a3540 0%, #0f2a35 100%); position: relative; }
+    [data-screen="s5"]::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 30% 70%, rgba(31,185,185,0.2) 0%, rgba(103,160,185,0.1) 50%, transparent 80%); pointer-events: none; }
+    [data-screen="s8"] { background: linear-gradient(145deg, #1a1a2e 0%, #2a2a4a 100%); position: relative; }
+    [data-screen="s8"]::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 90% 10%, rgba(17,133,185,0.2) 0%, transparent 60%); pointer-events: none; }
+    
+    .feed-card, .card, .card--inner { background: rgba(10, 20, 35, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; }
+    .feed-card:hover { border-color: var(--accent); }
+    .logo-hero { width: 110px; height: 110px; background: linear-gradient(145deg, #1e2a4a, #0a1020); border-radius: 32px; display: flex; align-items: center; justify-content: center; margin-bottom: 2rem; box-shadow: 0 20px 35px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.1); }
+    .logo-hero img { width: 80px; height: 80px; object-fit: contain; }
+    .hero h1 { font-size: 3.6rem; font-weight: 800; background: linear-gradient(135deg, #fff, #a0f0df); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .badge { background: rgba(79,224,181,0.2); backdrop-filter: blur(12px); padding: 0.4rem 1rem; border-radius: 60px; font-size: 0.8rem; font-weight: 600; color: var(--accent); border: 1px solid rgba(79,224,181,0.5); margin-bottom: 1.8rem; }
+    .hero p { font-size: 1.2rem; max-width: 480px; color: #ffffff; text-shadow: 0 1px 4px rgba(0,0,0,0.5); margin-bottom: 2rem; }
+    .btn-hero { background: var(--accent); color: #0b1020; font-weight: 800; padding: 0.9rem 2.2rem; border-radius: 60px; border: none; font-size: 1.05rem; box-shadow: 0 8px 20px rgba(79,224,181,0.4); cursor: pointer; transition: transform 0.2s; }
+    .btn-hero:hover { transform: scale(1.02); box-shadow: 0 12px 28px rgba(79,224,181,0.6); }
+    .feature-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 2rem; margin-top: 3rem; }
+    .feature { background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(10px); border-radius: 28px; padding: 0.8rem 1.5rem; border: 1px solid rgba(255,255,255,0.15); }
+    .btn--filter.active-filter { background: rgba(79,224,181,0.25); border-color: var(--accent); color: var(--accent); }
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: #111827; }
+    ::-webkit-scrollbar-thumb { background: #4fe0b5; border-radius: 10px; }
+    
+    /* Estilos de la Trivia */
+    .trivia-stats { display: flex; gap: 12px; margin-bottom: 14px; }
+    .stat-box { flex: 1; padding: 12px; border-radius: 14px; text-align: center; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); }
+    .stat-box .label { display: block; font-size: 12px; color: #b8c4ec; }
+    .stat-box .number { display: block; font-size: 24px; font-weight: 800; margin-top: 4px; }
+    .stat-box.correct .number { color: #4caf50; }
+    .stat-box.incorrect .number { color: #f44336; }
+    .trivia-question { margin-bottom: 20px; }
+    .trivia-question h3 { font-size: 1.3rem; line-height: 1.4; }
+    .trivia-options { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+    .trivia-btn { padding: 14px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.15); background: rgba(0,0,0,0.4); color: white; text-align: left; font-size: 0.95rem; cursor: pointer; transition: all 0.2s; }
+    .trivia-btn:hover:not(:disabled) { background: rgba(79,224,181,0.15); border-color: var(--accent); }
+    .trivia-btn.correct { background: rgba(76,175,80,0.3); border-color: #4caf50; }
+    .trivia-btn.incorrect { background: rgba(244,67,54,0.25); border-color: #f44336; }
+    .feedback-message { padding: 12px; border-radius: 12px; margin-top: 10px; font-weight: 600; text-align: center; }
+    .feedback-message.success { background: rgba(76,175,80,0.2); color: #81c784; border: 1px solid rgba(76,175,80,0.3); }
+    .feedback-message.error { background: rgba(244,67,54,0.15); color: #ef9a9a; border: 1px solid rgba(244,67,54,0.25); }
+    
+    /* Estilos de la Guía de Inicio */
+    .guide-step {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px;
+      margin-bottom: 12px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.08);
+      transition: all 0.2s;
+    }
+    .guide-step:hover {
+      background: rgba(79,224,181,0.1);
+      border-color: rgba(79,224,181,0.3);
+      transform: translateX(5px);
+    }
+    .guide-icon {
+      width: 48px;
+      height: 48px;
+      background: rgba(79,224,181,0.15);
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+    .guide-content { flex: 1; }
+    .guide-title { font-weight: 700; font-size: 1rem; margin-bottom: 4px; color: var(--accent); }
+    .guide-text { font-size: 0.85rem; color: #b8c4ec; line-height: 1.4; }
+    .guide-badge {
+      background: rgba(79,224,181,0.2);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--accent);
+    }
+    .achievement-badge {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 60px;
+      padding: 8px 16px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+  <header class="topbar">
+    <div class="topbar__title" id="topbarTitle">Walter Sports</div>
+    <button class="topbar__btn" id="backBtn" hidden>←</button>
+  </header>
+
+  <main class="screens">
+    <!-- Pantalla de inicio (Landing Page) -->
+    <section class="screen screen--active" data-screen="s1">
+      <div class="hero">
+        <div class="logo-hero"><img src="assets/Walter Icono.ico" alt="Walter Sports"></div>
+        <div class="badge">⚡ Realidad Aumentada - Edición Mundial 2026</div>
+        <h1>Walter Sports AR</h1>
+        <p>Escanea escudos de selecciones, desbloquea modelos 3D, crea clips únicos y pon a prueba tus conocimientos futbolísticos.</p>
+        <button class="btn-hero" data-nav="s2">▶ COMENZAR AHORA</button>
+        <div class="feature-grid">
+          <div class="feature">🎮 AR Inmersivo</div>
+          <div class="feature">📹 Edición de video</div>
+          <div class="feature">🏆 Trivia + Colección</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pantalla Feed -->
+    <section class="screen" data-screen="s2">
+      <div class="container">
+        <h2 style="display: flex; align-items:center; gap:10px;">📱 Feed de momentos</h2>
+        <div id="feedList" class="feed-list">
+          <div class="feed-card">
+            <div class="feed-card__label">🇲🇽 MÉXICO</div>
+            <video controls playsinline preload="metadata" class="video feed-card__video" src="assets/videos/Video Mexico.mp4"></video>
+            <div class="filter-controls feed-card__filters">
+              <button class="btn btn--filter" data-filter="none">Original</button>
+              <button class="btn btn--filter" data-filter="blur">Desenfoque</button>
+              <button class="btn btn--filter" data-filter="pixel">Pixelado</button>
+              <button class="btn btn--filter" data-filter="thermal">Térmica</button>
+              <button class="btn btn--filter" data-filter="pastel">Pastel</button>
+              <button class="btn btn--filter" data-filter="saturate">Saturación</button>
+              <button class="btn btn--filter" data-filter="smooth">Suavizado</button>
+            </div>
+          </div>
+          <div class="feed-card">
+            <div class="feed-card__label">🇩🇪 ALEMANIA</div>
+            <video controls playsinline preload="metadata" class="video feed-card__video" src="assets/videos/Video Alemania.mp4"></video>
+            <div class="filter-controls feed-card__filters">
+              <button class="btn btn--filter" data-filter="none">Original</button>
+              <button class="btn btn--filter" data-filter="blur">Desenfoque</button>
+              <button class="btn btn--filter" data-filter="pixel">Pixelado</button>
+              <button class="btn btn--filter" data-filter="thermal">Térmica</button>
+              <button class="btn btn--filter" data-filter="pastel">Pastel</button>
+              <button class="btn btn--filter" data-filter="saturate">Saturación</button>
+              <button class="btn btn--filter" data-filter="smooth">Suavizado</button>
+            </div>
+          </div>
+          <div class="feed-card">
+            <div class="feed-card__label">🇺🇸 USA</div>
+            <video controls playsinline preload="metadata" class="video feed-card__video" src="assets/videos/Video USA.mp4"></video>
+            <div class="filter-controls feed-card__filters">
+              <button class="btn btn--filter" data-filter="none">Original</button>
+              <button class="btn btn--filter" data-filter="blur">Desenfoque</button>
+              <button class="btn btn--filter" data-filter="pixel">Pixelado</button>
+              <button class="btn btn--filter" data-filter="thermal">Térmica</button>
+              <button class="btn btn--filter" data-filter="pastel">Pastel</button>
+              <button class="btn btn--filter" data-filter="saturate">Saturación</button>
+              <button class="btn btn--filter" data-filter="smooth">Suavizado</button>
+            </div>
+          </div>
+          <div class="feed-card">
+            <div class="feed-card__label">🇨🇦 CANADÁ</div>
+            <video controls playsinline preload="metadata" class="video feed-card__video" src="assets/videos/Video Canada.mp4"></video>
+            <div class="filter-controls feed-card__filters">
+              <button class="btn btn--filter" data-filter="none">Original</button>
+              <button class="btn btn--filter" data-filter="blur">Desenfoque</button>
+              <button class="btn btn--filter" data-filter="pixel">Pixelado</button>
+              <button class="btn btn--filter" data-filter="thermal">Térmica</button>
+              <button class="btn btn--filter" data-filter="pastel">Pastel</button>
+              <button class="btn btn--filter" data-filter="saturate">Saturación</button>
+              <button class="btn btn--filter" data-filter="smooth">Suavizado</button>
+            </div>
+          </div>
+          <div class="feed-card">
+            <div class="feed-card__label">🇪🇸 ESPAÑA</div>
+            <video controls playsinline preload="metadata" class="video feed-card__video" src="assets/videos/Video Espania.mp4"></video>
+            <div class="filter-controls feed-card__filters">
+              <button class="btn btn--filter" data-filter="none">Original</button>
+              <button class="btn btn--filter" data-filter="blur">Desenfoque</button>
+              <button class="btn btn--filter" data-filter="pixel">Pixelado</button>
+              <button class="btn btn--filter" data-filter="thermal">Térmica</button>
+              <button class="btn btn--filter" data-filter="pastel">Pastel</button>
+              <button class="btn btn--filter" data-filter="saturate">Saturación</button>
+              <button class="btn btn--filter" data-filter="smooth">Suavizado</button>
+            </div>
+          </div>
+          <div class="feed-card">
+            <div class="feed-card__label">🇵🇹 PORTUGAL</div>
+            <video controls playsinline preload="metadata" class="video feed-card__video" src="assets/videos/Video Portugal.mp4"></video>
+            <div class="filter-controls feed-card__filters">
+              <button class="btn btn--filter" data-filter="none">Original</button>
+              <button class="btn btn--filter" data-filter="blur">Desenfoque</button>
+              <button class="btn btn--filter" data-filter="pixel">Pixelado</button>
+              <button class="btn btn--filter" data-filter="thermal">Térmica</button>
+              <button class="btn btn--filter" data-filter="pastel">Pastel</button>
+              <button class="btn btn--filter" data-filter="saturate">Saturación</button>
+              <button class="btn btn--filter" data-filter="smooth">Suavizado</button>
+            </div>
+          </div>
+          <div class="feed-card">
+            <div class="feed-card__label">🇫🇷 FRANCIA</div>
+            <video controls playsinline preload="metadata" class="video feed-card__video" src="assets/videos/Video Francia.mp4"></video>
+            <div class="filter-controls feed-card__filters">
+              <button class="btn btn--filter" data-filter="none">Original</button>
+              <button class="btn btn--filter" data-filter="blur">Desenfoque</button>
+              <button class="btn btn--filter" data-filter="pixel">Pixelado</button>
+              <button class="btn btn--filter" data-filter="thermal">Térmica</button>
+              <button class="btn btn--filter" data-filter="pastel">Pastel</button>
+              <button class="btn btn--filter" data-filter="saturate">Saturación</button>
+              <button class="btn btn--filter" data-filter="smooth">Suavizado</button>
+            </div>
+          </div>
+          <div class="feed-card">
+            <div class="feed-card__label">🇦🇷 ARGENTINA</div>
+            <video controls playsinline preload="metadata" class="video feed-card__video" src="assets/videos/Video Argentina.mp4"></video>
+            <div class="filter-controls feed-card__filters">
+              <button class="btn btn--filter" data-filter="none">Original</button>
+              <button class="btn btn--filter" data-filter="blur">Desenfoque</button>
+              <button class="btn btn--filter" data-filter="pixel">Pixelado</button>
+              <button class="btn btn--filter" data-filter="thermal">Térmica</button>
+              <button class="btn btn--filter" data-filter="pastel">Pastel</button>
+              <button class="btn btn--filter" data-filter="saturate">Saturación</button>
+              <button class="btn btn--filter" data-filter="smooth">Suavizado</button>
+            </div>
+          </div>
+          <div class="feed-card">
+            <div class="feed-card__label">🇯🇵 JAPÓN</div>
+            <video controls playsinline preload="metadata" class="video feed-card__video" src="assets/videos/Video Japon.mp4"></video>
+            <div class="filter-controls feed-card__filters">
+              <button class="btn btn--filter" data-filter="none">Original</button>
+              <button class="btn btn--filter" data-filter="blur">Desenfoque</button>
+              <button class="btn btn--filter" data-filter="pixel">Pixelado</button>
+              <button class="btn btn--filter" data-filter="thermal">Térmica</button>
+              <button class="btn btn--filter" data-filter="pastel">Pastel</button>
+              <button class="btn btn--filter" data-filter="saturate">Saturación</button>
+              <button class="btn btn--filter" data-filter="smooth">Suavizado</button>
+            </div>
+          </div>
+          <div class="feed-card">
+            <div class="feed-card__label">🇰🇷 COREA DEL SUR</div>
+            <video controls playsinline preload="metadata" class="video feed-card__video" src="assets/videos/Video CoreaDelSur.mp4"></video>
+            <div class="filter-controls feed-card__filters">
+              <button class="btn btn--filter" data-filter="none">Original</button>
+              <button class="btn btn--filter" data-filter="blur">Desenfoque</button>
+              <button class="btn btn--filter" data-filter="pixel">Pixelado</button>
+              <button class="btn btn--filter" data-filter="thermal">Térmica</button>
+              <button class="btn btn--filter" data-filter="pastel">Pastel</button>
+              <button class="btn btn--filter" data-filter="saturate">Saturación</button>
+              <button class="btn btn--filter" data-filter="smooth">Suavizado</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <video id="feedVideo" playsinline preload="metadata" style="display:none;"></video>
+
+    <!-- Pantalla Editor de video -->
+    <section class="screen" data-screen="s3">
+      <div class="container">
+        <h2>🎬 Editor de video</h2>
+        <div class="card">
+          <h3>🎥 Acervo Mundial 2026</h3>
+          <div class="video-gallery">
+            <button class="btn btn-thumb" data-vsrc="assets/videos/Video Mexico.mp4">🇲🇽 México</button>
+            <button class="btn btn-thumb" data-vsrc="assets/videos/Video Alemania.mp4">🇩🇪 Alemania</button>
+            <button class="btn btn-thumb" data-vsrc="assets/videos/Video USA.mp4">🇺🇸 USA</button>
+            <button class="btn btn-thumb" data-vsrc="assets/videos/Video Canada.mp4">🇨🇦 Canadá</button>
+            <button class="btn btn-thumb" data-vsrc="assets/videos/Video Espania.mp4">🇪🇸 España</button>
+            <button class="btn btn-thumb" data-vsrc="assets/videos/Video Portugal.mp4">🇵🇹 Portugal</button>
+            <button class="btn btn-thumb" data-vsrc="assets/videos/Video Francia.mp4">🇫🇷 Francia</button>
+            <button class="btn btn-thumb" data-vsrc="assets/videos/Video Argentina.mp4">🇦🇷 Argentina</button>
+            <button class="btn btn-thumb" data-vsrc="assets/videos/Video Japon.mp4">🇯🇵 Japón</button>
+            <button class="btn btn-thumb" data-vsrc="assets/videos/Video CoreaDelSur.mp4">🇰🇷 Corea del Sur</button>
+          </div>
+          <hr>
+          <div class="row"><label>📂 Sube tu propio clip:</label><input type="file" id="videoInput" accept="video/*" /></div>
+          <video id="selectedVideo" controls playsinline class="video" style="max-width:100%; margin-top:12px"></video>
+          <div class="filter-controls">
+            <button class="btn btn--filter" data-filter="none">Original</button>
+            <button class="btn btn--filter" data-filter="blur">Desenfoque</button>
+            <button class="btn btn--filter" data-filter="pixel">Pixelado</button>
+            <button class="btn btn--filter" data-filter="thermal">Térmica</button>
+            <button class="btn btn--filter" data-filter="pastel">Pastel</button>
+            <button class="btn btn--filter" data-filter="saturate">Saturación</button>
+            <button class="btn btn--filter" data-filter="smooth">Suavizado</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pantalla Escanear AR -->
+    <section class="screen" data-screen="s4">
+      <div class="container">
+        <h2>🔍 Realidad Aumentada</h2>
+        <div class="card" style="position: relative; min-height: 380px; overflow: hidden;">
+          <a-scene mindar-image="imageTargetSrc: ./escudos.mind; autoStart: false; uiLoading: no; uiScanning: no; uiError: no;" color-space="sRGB" renderer="colorManagement: true; antialias: false; precision: mediump;" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false" embedded style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;">
+            <a-assets></a-assets>
+            <a-camera position="0 0 0" look-controls="enabled: false" near="0.1" far="1000"></a-camera>
+            <a-light type="ambient" color="#ffffff" intensity="0.4"></a-light>
+            <a-light type="directional" color="#ffffff" intensity="0.8" position="-1 1 1"></a-light>
+            <a-entity mindar-image-target="targetIndex: 0"><a-text value="MÉXICO" color="white" align="center" position="0 0.6 0"></a-text></a-entity>
+            <a-entity mindar-image-target="targetIndex: 1"><a-text value="ALEMANIA" color="white" align="center" position="0 0.6 0"></a-text></a-entity>
+            <a-entity mindar-image-target="targetIndex: 2"><a-text value="CANADÁ" color="white" align="center" position="0 0.6 0"></a-text></a-entity>
+            <a-entity mindar-image-target="targetIndex: 3"><a-text value="COREA DEL SUR" color="white" align="center" position="0 0.6 0"></a-text></a-entity>
+            <a-entity mindar-image-target="targetIndex: 4"><a-text value="ESPAÑA" color="white" align="center" position="0 0.6 0"></a-text></a-entity>
+            <a-entity mindar-image-target="targetIndex: 5"><a-text value="FRANCIA" color="white" align="center" position="0 0.6 0"></a-text></a-entity>
+            <a-entity mindar-image-target="targetIndex: 6"><a-text value="ARGENTINA" color="white" align="center" position="0 0.6 0"></a-text></a-entity>
+            <a-entity mindar-image-target="targetIndex: 7"><a-text value="JAPÓN" color="white" align="center" position="0 0.6 0"></a-text></a-entity>
+            <a-entity mindar-image-target="targetIndex: 8"><a-text value="PORTUGAL" color="white" align="center" position="0 0.6 0"></a-text></a-entity>
+            <a-entity mindar-image-target="targetIndex: 9"><a-text value="USA" color="white" align="center" position="0 0.6 0"></a-text></a-entity>
+          </a-scene>
+        </div>
+        <div class="row" style="margin-top: 15px;">
+          <button class="btn btn--primary" id="startScanBtn">📷 Iniciar cámara</button>
+          <button class="btn" id="stopScanBtn" disabled>⏹️ Detener</button>
+        </div>
+        <div class="card card--inner">
+          <div class="row"><span id="qrStatus" class="muted" style="font-size:0.85rem; width:100%;">Listo. Pulsa iniciar.</span></div>
+          <div class="row row--space"><span class="muted">🎯 Escudo detectado:</span><span id="qrValue" class="mono">—</span></div>
+          <div class="playerCard" id="playerCard" hidden>
+            <div class="playerCard__top"><div class="playerCard__name" id="playerName">—</div><div class="playerCard__meta">Selección Nacional</div></div>
+            <div class="playerCard__grid"><div>🌍 Continente: <span id="teamContinent">—</span></div><div>📋 Grupo: <span id="teamGroup">—</span></div><div>🏆 Copas: <span id="teamCups">—</span></div></div>
+          </div>
+          <div class="grid">
+            <button class="btn" data-player-action="anim" disabled>🎬 Animar</button>
+            <button class="btn" data-player-action="info" disabled>ℹ️ Info</button>
+            <button class="btn" data-player-action="video" disabled>🎥 Video</button>
+            <button class="btn" data-player-action="fx" disabled>✨ FX</button>
+          </div>
+          <div class="row"><button class="btn" data-nav="s8">🎖️ Guía / Perfil</button><button class="btn" data-nav="s2">Volver al Feed</button></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pantalla Trivia -->
+    <section class="screen" data-screen="s5">
+      <div class="container">
+        <h2>🧠 Trivia Mundial 2026</h2>
+        <div class="trivia-stats">
+          <div class="stat-box correct"><span class="label">✓ Correctas</span><span class="number" id="correctCount">0</span></div>
+          <div class="stat-box incorrect"><span class="label">✗ Incorrectas</span><span class="number" id="incorrectCount">0</span></div>
+        </div>
+        <div class="card" id="triviaCard">
+          <div class="trivia-question"><span class="muted" id="questionNumber">Pregunta 1 de 50</span><h3 id="questionText">Cargando...</h3></div>
+          <div class="trivia-options">
+            <button class="trivia-btn" data-index="0"><span id="option0"></span></button>
+            <button class="trivia-btn" data-index="1"><span id="option1"></span></button>
+            <button class="trivia-btn" data-index="2"><span id="option2"></span></button>
+            <button class="trivia-btn" data-index="3"><span id="option3"></span></button>
+          </div>
+          <div id="feedbackMessage" class="feedback-message" hidden></div>
+          <div class="row"><button class="btn" id="resetTriviaBtn">🔄 Reiniciar</button><button class="btn btn--primary" data-nav="s2">Volver</button></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pantalla PERFIL convertida en GUÍA DE INICIO -->
+    <section class="screen" data-screen="s8">
+      <div class="container">
+        <h2>🎮 Guía de inicio</h2>
+        <p class="muted">👋 ¡Bienvenido a Walter Sports AR! Aquí te explicamos cómo funciona cada sección.</p>
+        
+        <div class="card" style="margin-bottom: 16px;">
+          <div class="guide-step">
+            <div class="guide-icon">📱</div>
+            <div class="guide-content">
+              <div class="guide-title">Feed de videos</div>
+              <div class="guide-text">Explora momentos destacados del Mundial. Puedes aplicar filtros a los videos tocando los botones debajo de cada reproducción. ¡Diviértete editando!</div>
+            </div>
+            <div class="guide-badge">Paso 1</div>
+          </div>
+          
+          <div class="guide-step">
+            <div class="guide-icon">🎬</div>
+            <div class="guide-content">
+              <div class="guide-title">Editor de video</div>
+              <div class="guide-text">Selecciona un video del acervo o sube el tuyo propio. Aplica filtros creativos (desenfoque, pixelado, térmica, saturación, etc.) y guarda tus creaciones.</div>
+            </div>
+            <div class="guide-badge">Paso 2</div>
+          </div>
+          
+          <div class="guide-step">
+            <div class="guide-icon">🔍</div>
+            <div class="guide-content">
+              <div class="guide-title">Realidad Aumentada</div>
+              <div class="guide-text">Apunta tu cámara a los escudos de las selecciones. ¡Mira cómo cobran vida en 3D! Puedes animarlos, ver videos informativos y desbloquearlos para tu colección.</div>
+            </div>
+            <div class="guide-badge">Paso 3</div>
+          </div>
+          
+          <div class="guide-step">
+            <div class="guide-icon">🧠</div>
+            <div class="guide-content">
+              <div class="guide-title">Trivia mundialista</div>
+              <div class="guide-text">Pon a prueba tus conocimientos con 50 preguntas sobre las selecciones. Responde correctamente y sube tu puntuación. ¡Completa toda la trivia!</div>
+            </div>
+            <div class="guide-badge">Paso 4</div>
+          </div>
+          
+          <div class="guide-step">
+            <div class="guide-icon">🏆</div>
+            <div class="guide-content">
+              <div class="guide-title">Colección desbloqueada</div>
+              <div class="guide-text">Cada vez que escanees un escudo en AR, lo desbloquearás y aparecerá aquí abajo. ¡Colecciona los 10 equipos!</div>
+            </div>
+            <div class="guide-badge">Logros</div>
+          </div>
+        </div>
+        
+        <!-- Colección de equipos desbloqueados -->
+        <div class="card">
+          <h3 style="margin-bottom: 12px;">⭐ Tus selecciones desbloqueadas</h3>
+          <div id="unlockedContainer" style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px;"></div>
+          <div class="row">
+            <button class="btn" id="clearUnlockedBtn">🗑️ Limpiar historial</button>
+            <button class="btn btn--primary" data-nav="s2">Volver al inicio</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <nav class="bottomnav">
+    <button class="tab" data-nav="s2">📱 Feed</button>
+    <button class="tab" data-nav="s4">🔍 Escanear</button>
+    <button class="tab" data-nav="s5">🧠 Trivia</button>
+    <button class="tab" data-nav="s8">🎮 Guía</button>
+  </nav>
+</div>
+<script src="app.js"></script>
+  <!-- SVG filters para efectos de video -->
+  <svg xmlns="http://www.w3.org/2000/svg" style="display:none; position:absolute; width:0; height:0;">
+    <defs>
+      <filter id="pixelate" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+        <feFlood x="4" y="4" height="2" width="2"/>
+        <feComposite width="10" height="10"/>
+        <feTile result="a"/>
+        <feComposite in="SourceGraphic" in2="a" operator="in"/>
+        <feMorphology operator="dilate" radius="5"/>
+      </filter>
+    </defs>
+  </svg>
+</body>
+</html>

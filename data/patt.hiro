@@ -1,0 +1,51 @@
+# Hiro marker pattern file for ARToolKit.
+#
+# This is a pattern file for the Hiro marker.
+# It is a 6x6 marker with a black border.
+# The pattern is a 4x4 matrix of 0s and 1s.
+# 0 is black, 1 is white.
+#
+# The pattern is encoded as a sequence of 16 bits,
+# with the most significant bit first.
+# The bits are read from left to right, top to bottom.
+#
+# The pattern is:
+# 0 0 0 0
+# 0 1 1 0
+# 0 1 1 0
+# 0 0 0 0
+#
+# The pattern is encoded as:
+# 0000 0110 0110 0000
+#
+# which is 0x0660 in hexadecimal.
+#
+# The pattern is stored in the file as a sequence of 16 bytes.
+# Each byte is either 0 or 255.
+# 0 is black, 255 is white.
+#
+# The file format is:
+#
+# 16
+# ...
+#
+# The first line is the size of the pattern in pixels.
+# The next 16 lines are the pixel values.
+
+16
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 255 255 255 255 0 0 0 0 255 255 255 255 0 0
+0 0 255 255 255 255 0 0 0 0 255 255 255 255 0 0
+0 0 255 255 255 255 0 0 0 0 255 255 255 255 0 0
+0 0 255 255 255 255 0 0 0 0 255 255 255 255 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 255 255 255 255 0 0 0 0 255 255 255 255 0 0
+0 0 255 255 255 255 0 0 0 0 255 255 255 255 0 0
+0 0 255 255 255 255 0 0 0 0 255 255 255 255 0 0
+0 0 255 255 255 255 0 0 0 0 255 255 255 255 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0

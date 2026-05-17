@@ -1,0 +1,37 @@
+# Extracted from https://github.com/artoolkit/artoolkit5/blob/master/doc/patterns/Calibration/camera_para.dat
+
+# this is the camera calibration file for ARToolworks.
+# You need to have a camera calibration file for your camera.
+# This is a camera calibration file for a specific camera, a Logitech Quickcam Pro 4000.
+# You need to replace it with a calibration file for your own camera.
+#
+# For more information on camera calibration, see the ARToolKit documentation.
+#
+# If you are using a video file, you can use the artoolkit_calibrate_camera utility to create a camera calibration file.
+# If you are using a live camera, you can use the calib_camera utility to create a camera calibration file.
+#
+# The camera calibration file has the following format:
+#
+# 3 4
+# ...
+#
+# The first line is the size of the camera image in pixels.
+# The next three lines are the camera matrix.
+# The next line is the distortion factors.
+# The last line is the aspect ratio.
+#
+# The camera matrix is a 3x4 matrix that maps 3D points in the world to 2D points in the image.
+# The distortion factors are the parameters of the lens distortion model.
+# The aspect ratio is the ratio of the pixel width to the pixel height.
+
+3 4
+640 480
+535.30506 0.0 313.14083 0.0
+0.0 532.89945 235.32164 0.0
+0.0 0.0 1.0 0.0
+
+# distortion
+-0.19894 0.31518 -0.00345 0.00067 0.0
+
+# aspect ratio
+1.0
