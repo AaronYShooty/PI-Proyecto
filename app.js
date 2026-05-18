@@ -510,11 +510,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (data && data.video) {
           const feedVideo = document.getElementById('feedVideo');
           if (feedVideo) {
+            feedVideo.pause();
             feedVideo.src = data.video;
             feedVideo.load();
-            feedVideo.play();
           }
           navigateTo('s2');
+          setTimeout(() => {
+            if (feedVideo) feedVideo.play();
+          }, 300);
         }
       }
       if (action === 'info') {
