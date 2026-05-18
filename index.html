@@ -4,11 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
   <title>Walter Sports · Mundial AR 2026</title>
-  <link rel="icon" href="assets/Walter_Icono.ico" type="image/x-icon">
+  <link rel="icon" href="assets/Walter Icono.ico" type="image/x-icon">
   <link rel="stylesheet" href="styles.css">
-  <script src="lib/aframe.min.js"></script>
-  <script src="lib/mindar-image-aframe.prod.js"></script>
-  <script src="lib/aframe-extras.min.js"></script>
+  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.2.0/dist/aframe-extras.min.js"></script>
   <script src="lib/jsQR.min.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap');
@@ -74,85 +74,10 @@
     .feature { background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(10px); border-radius: 28px; padding: 0.8rem 1.5rem; border: 1px solid rgba(255,255,255,0.15); }
     .btn--filter.active-filter { background: rgba(79,224,181,0.25); border-color: var(--accent); color: var(--accent); }
     ::-webkit-scrollbar { width: 5px; }
-    ::-webkit-scrollbar-track { background: #111827; } /* Fondo de la barra de desplazamiento */
-    ::-webkit-scrollbar-thumb { background: #4fe0b5; border-radius: 10px; } /* Color del "pulgar" de la barra de desplazamiento */
+    ::-webkit-scrollbar-track { background: #111827; }
+    ::-webkit-scrollbar-thumb { background: #4fe0b5; border-radius: 10px; }
     
-    /* Estilos para los videos y filtros */
-    /* 1. Definición de filtros base */
-    .f-blur .video { filter: blur(10px) !important; }
-    .f-sepia .video { filter: sepia(1) brightness(0.9) !important; }
-    .f-thermal .video { filter: invert(1) hue-rotate(180deg) saturate(3) !important; }
-    .f-pixel .video { filter: url(#pixelate) !important; }
-    .f-pastel .video { filter: brightness(1.1) saturate(0.5) contrast(0.9) !important; }
-    .f-saturate .video { filter: saturate(4) !important; }
-    .f-smooth .video { filter: contrast(0.8) brightness(1.1) blur(2px) !important; }
-
-    /* Al pasar el mouse o enfocar, el video se ve nítido, 
-       pero los controles (al ser elementos hermanos) nunca se ven afectados por el filtro */
-    .video-container {
-      position: relative;
-      width: 100%;
-      overflow: hidden;
-      border-radius: 12px;
-      background: #000;
-      isolation: isolate; /* Crea un grupo de renderizado independiente */
-    }
-
-    .video {
-      display: block;
-      width: 100%;
-      height: auto;
-      transform: translateZ(0);
-      cursor: pointer;
-      -webkit-transform: translateZ(0);
-      transition: filter 0.3s ease;
-    }
-
-    /* --- NUEVOS CONTROLES PERSONALIZADOS --- */
-    .custom-controls {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: rgba(0, 0, 0, 0.5);
-      display: flex;
-      align-items: center;
-      padding: 8px;
-      gap: 10px;
-      z-index: 10; /* Por encima del video filtrado */
-      transition: opacity 0.3s;
-      filter: none !important; /* Fuerza a los controles a ignorar filtros */
-      transform: translateZ(0); /* Forza capa de hardware separada */
-    }
-
-    /* Los controles solo se ocultan si el video está reproduciéndose Y no hay hover */
-    .video-container:not(:hover) .video[data-playing="true"] + .custom-controls {
-      opacity: 0;
-    }
-
-    .play-btn {
-      background: none;
-      border: none;
-      color: white;
-      font-size: 20px;
-      cursor: pointer;
-      width: 30px;
-    }
-
-    .seek-bar {
-      flex-grow: 1;
-      cursor: pointer;
-      accent-color: #4caf50;
-    }
-
-    .time-display {
-      color: white;
-      font-size: 12px;
-      font-family: monospace;
-      min-width: 35px;
-    }
-
-    /* Estilos de la Trivia (ya existentes) */
+    /* Estilos de la Trivia */
     .trivia-stats { display: flex; gap: 12px; margin-bottom: 14px; }
     .stat-box { flex: 1; padding: 12px; border-radius: 14px; text-align: center; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); }
     .stat-box .label { display: block; font-size: 12px; color: #b8c4ec; }
@@ -217,9 +142,6 @@
       padding: 8px 16px;
       border: 1px solid rgba(255,255,255,0.1);
     }
-    /* Estilo crítico para evitar que las secciones se encimen si el CSS externo falla */
-    .screen { display: none; }
-    .screen--active { display: block; }
   </style>
 </head>
 <body>
@@ -233,8 +155,8 @@
     <!-- Pantalla de inicio (Landing Page) -->
     <section class="screen screen--active" data-screen="s1">
       <div class="hero">
-        <div class="logo-hero"><img src="assets/Walter_Icono.ico" alt="Walter Sports"></div>
-        <div class="badge">⚡ Realidad Aumentada · Mundial 2026</div>
+        <div class="logo-hero"><img src="assets/Walter Icono.ico" alt="Walter Sports"></div>
+        <div class="badge">⚡ Realidad Aumentada - Edición Mundial 2026</div>
         <h1>Walter Sports AR</h1>
         <p>Escanea escudos de selecciones, desbloquea modelos 3D, crea clips únicos y pon a prueba tus conocimientos futbolísticos.</p>
         <button class="btn-hero" data-nav="s2">▶ COMENZAR AHORA</button>
@@ -249,98 +171,128 @@
     <!-- Pantalla Feed -->
     <section class="screen" data-screen="s2">
       <div class="container">
-        <h2 style="display: flex; align-items:center; gap:10px;">📱 Feed de momentos</h2> 
+        <h2 style="display: flex; align-items:center; gap:10px;">📱 Feed de momentos</h2>
         <div id="feedList" class="feed-list">
           <div class="feed-card">
-            <div class="feed-card__label">⭐ JUGADA ÉPICA</div>
-            <div class="video-container" id="feedVideoContainer_0">
-              <video id="feedVideo" playsinline preload="metadata" class="video feed-card__video" src="https://www.w3schools.com/html/mov_bbb.mp4"></video>
-              <div class="custom-controls">
-                <button class="play-btn">▶</button>
-                <input type="range" class="seek-bar" value="0" min="0" step="0.1">
-                <span class="time-display">0:00</span>
-              </div>
-            </div>
-            <div class="filter-controls feed-card__filters">
-              <button class="btn btn--filter" data-filter="none">Original</button>
-              <button class="btn btn--filter" data-filter="blur">Desenfoque</button>
-              <button class="btn btn--filter" data-filter="pixel">Pixelado</button>
-              <button class="btn btn--filter" data-filter="thermal">Térmica</button>
-              <button class="btn btn--filter" data-filter="pastel">Pastel</button> 
-              <button class="btn btn--filter" data-filter="saturate">Saturación</button>
-              <button class="btn btn--filter" data-filter="smooth">Suavizado</button>
-            </div>
-          </div>
-          <div class="feed-card">
-            <div class="feed-card__label">⚽ GOLAZO</div>
-            <div class="video-container" id="feedVideoContainer_1">
-              <video playsinline preload="metadata" class="video feed-card__video" src="https://www.w3schools.com/html/movie.mp4"></video>
-              <div class="custom-controls">
-                <button class="play-btn">▶</button>
-                <input type="range" class="seek-bar" value="0" min="0" step="0.1">
-                <span class="time-display">0:00</span>
-              </div>
-            </div>
-            <div class="filter-controls feed-card__filters">
-              <button class="btn btn--filter" data-filter="none">Original</button>
-              <button class="btn btn--filter" data-filter="blur">Desenfoque</button>
-              <button class="btn btn--filter" data-filter="pixel">Pixelado</button>
-              <button class="btn btn--filter" data-filter="thermal">Térmica</button>
-              <button class="btn btn--filter" data-filter="pastel">Pastel</button>
-              <button class="btn btn--filter" data-filter="saturate">Saturación</button>
-              <button class="btn btn--filter" data-filter="smooth">Suavizado</button>
-            </div>
-          </div>
-          <div class="feed-card">
-            <div class="feed-card__label">🏟️ ESTADIO</div>
-            <div class="video-container" id="feedVideoContainer_2">
-              <video playsinline preload="metadata" class="video feed-card__video" src="https://samplelib.com/lib/preview/mp4/sample-5s.mp4"></video>
-              <div class="custom-controls">
-                <button class="play-btn">▶</button>
-                <input type="range" class="seek-bar" value="0" min="0" step="0.1">
-                <span class="time-display">0:00</span>
-              </div>
-            </div>
-            <div class="filter-controls feed-card__filters">
-              <button class="btn btn--filter" data-filter="none">Original</button>
-              <button class="btn btn--filter" data-filter="blur">Desenfoque</button>
-              <button class="btn btn--filter" data-filter="pixel">Pixelado</button>
-              <button class="btn btn--filter" data-filter="thermal">Térmica</button>
-              <button class="btn btn--filter" data-filter="pastel">Pastel</button>
-              <button class="btn btn--filter" data-filter="saturate">Saturación</button>
-              <button class="btn btn--filter" data-filter="smooth">Suavizado</button>
-            </div>
-          </div>
-          <div class="feed-card">
-            <div class="feed-card__label">🎆 GRAN FINAL</div>
-            <div class="video-container" id="feedVideoContainer_3">
-              <video playsinline preload="metadata" class="video feed-card__video" src="assets/videos/final_2026.mp4"></video>
-              <div class="custom-controls">
-                <button class="play-btn">▶</button>
-                <input type="range" class="seek-bar" value="0" min="0" step="0.1">
-                <span class="time-display">0:00</span>
-              </div>
-            </div>
-            <div class="filter-controls feed-card__filters">
-              <button class="btn btn--filter" data-filter="none">Original</button>
-              <button class="btn btn--filter" data-filter="blur">Desenfoque</button>
-              <button class="btn btn--filter" data-filter="pixel">Pixelado</button>
-              <button class="btn btn--filter" data-filter="thermal">Térmica</button>
-              <button class="btn btn--filter" data-filter="pastel">Pastel</button>
-              <button class="btn btn--filter" data-filter="saturate">Saturación</button>
-              <button class="btn btn--filter" data-filter="smooth">Suavizado</button>
-            </div>
-          </div>
-          <div class="feed-card">
             <div class="feed-card__label">🇲🇽 MÉXICO</div>
-            <div class="video-container" id="feedVideoContainer_4">
-              <video playsinline preload="metadata" class="video feed-card__video" src="assets/videos/resumen_mexico.mp4"></video>
-              <div class="custom-controls">
-                <button class="play-btn">▶</button>
-                <input type="range" class="seek-bar" value="0" min="0" step="0.1">
-                <span class="time-display">0:00</span>
-              </div>
+            <video controls playsinline preload="metadata" class="video feed-card__video" src="assets/videos/Video Mexico.mp4"></video>
+            <div class="filter-controls feed-card__filters">
+              <button class="btn btn--filter" data-filter="none">Original</button>
+              <button class="btn btn--filter" data-filter="blur">Desenfoque</button>
+              <button class="btn btn--filter" data-filter="pixel">Pixelado</button>
+              <button class="btn btn--filter" data-filter="thermal">Térmica</button>
+              <button class="btn btn--filter" data-filter="pastel">Pastel</button>
+              <button class="btn btn--filter" data-filter="saturate">Saturación</button>
+              <button class="btn btn--filter" data-filter="smooth">Suavizado</button>
             </div>
+          </div>
+          <div class="feed-card">
+            <div class="feed-card__label">🇩🇪 ALEMANIA</div>
+            <video controls playsinline preload="metadata" class="video feed-card__video" src="assets/videos/Video Alemania.mp4"></video>
+            <div class="filter-controls feed-card__filters">
+              <button class="btn btn--filter" data-filter="none">Original</button>
+              <button class="btn btn--filter" data-filter="blur">Desenfoque</button>
+              <button class="btn btn--filter" data-filter="pixel">Pixelado</button>
+              <button class="btn btn--filter" data-filter="thermal">Térmica</button>
+              <button class="btn btn--filter" data-filter="pastel">Pastel</button>
+              <button class="btn btn--filter" data-filter="saturate">Saturación</button>
+              <button class="btn btn--filter" data-filter="smooth">Suavizado</button>
+            </div>
+          </div>
+          <div class="feed-card">
+            <div class="feed-card__label">🇺🇸 USA</div>
+            <video controls playsinline preload="metadata" class="video feed-card__video" src="assets/videos/Video USA.mp4"></video>
+            <div class="filter-controls feed-card__filters">
+              <button class="btn btn--filter" data-filter="none">Original</button>
+              <button class="btn btn--filter" data-filter="blur">Desenfoque</button>
+              <button class="btn btn--filter" data-filter="pixel">Pixelado</button>
+              <button class="btn btn--filter" data-filter="thermal">Térmica</button>
+              <button class="btn btn--filter" data-filter="pastel">Pastel</button>
+              <button class="btn btn--filter" data-filter="saturate">Saturación</button>
+              <button class="btn btn--filter" data-filter="smooth">Suavizado</button>
+            </div>
+          </div>
+          <div class="feed-card">
+            <div class="feed-card__label">🇨🇦 CANADÁ</div>
+            <video controls playsinline preload="metadata" class="video feed-card__video" src="assets/videos/Video Canada.mp4"></video>
+            <div class="filter-controls feed-card__filters">
+              <button class="btn btn--filter" data-filter="none">Original</button>
+              <button class="btn btn--filter" data-filter="blur">Desenfoque</button>
+              <button class="btn btn--filter" data-filter="pixel">Pixelado</button>
+              <button class="btn btn--filter" data-filter="thermal">Térmica</button>
+              <button class="btn btn--filter" data-filter="pastel">Pastel</button>
+              <button class="btn btn--filter" data-filter="saturate">Saturación</button>
+              <button class="btn btn--filter" data-filter="smooth">Suavizado</button>
+            </div>
+          </div>
+          <div class="feed-card">
+            <div class="feed-card__label">🇪🇸 ESPAÑA</div>
+            <video controls playsinline preload="metadata" class="video feed-card__video" src="assets/videos/Video Espania.mp4"></video>
+            <div class="filter-controls feed-card__filters">
+              <button class="btn btn--filter" data-filter="none">Original</button>
+              <button class="btn btn--filter" data-filter="blur">Desenfoque</button>
+              <button class="btn btn--filter" data-filter="pixel">Pixelado</button>
+              <button class="btn btn--filter" data-filter="thermal">Térmica</button>
+              <button class="btn btn--filter" data-filter="pastel">Pastel</button>
+              <button class="btn btn--filter" data-filter="saturate">Saturación</button>
+              <button class="btn btn--filter" data-filter="smooth">Suavizado</button>
+            </div>
+          </div>
+          <div class="feed-card">
+            <div class="feed-card__label">🇵🇹 PORTUGAL</div>
+            <video controls playsinline preload="metadata" class="video feed-card__video" src="assets/videos/Video Portugal.mp4"></video>
+            <div class="filter-controls feed-card__filters">
+              <button class="btn btn--filter" data-filter="none">Original</button>
+              <button class="btn btn--filter" data-filter="blur">Desenfoque</button>
+              <button class="btn btn--filter" data-filter="pixel">Pixelado</button>
+              <button class="btn btn--filter" data-filter="thermal">Térmica</button>
+              <button class="btn btn--filter" data-filter="pastel">Pastel</button>
+              <button class="btn btn--filter" data-filter="saturate">Saturación</button>
+              <button class="btn btn--filter" data-filter="smooth">Suavizado</button>
+            </div>
+          </div>
+          <div class="feed-card">
+            <div class="feed-card__label">🇫🇷 FRANCIA</div>
+            <video controls playsinline preload="metadata" class="video feed-card__video" src="assets/videos/Video Francia.mp4"></video>
+            <div class="filter-controls feed-card__filters">
+              <button class="btn btn--filter" data-filter="none">Original</button>
+              <button class="btn btn--filter" data-filter="blur">Desenfoque</button>
+              <button class="btn btn--filter" data-filter="pixel">Pixelado</button>
+              <button class="btn btn--filter" data-filter="thermal">Térmica</button>
+              <button class="btn btn--filter" data-filter="pastel">Pastel</button>
+              <button class="btn btn--filter" data-filter="saturate">Saturación</button>
+              <button class="btn btn--filter" data-filter="smooth">Suavizado</button>
+            </div>
+          </div>
+          <div class="feed-card">
+            <div class="feed-card__label">🇦🇷 ARGENTINA</div>
+            <video controls playsinline preload="metadata" class="video feed-card__video" src="assets/videos/Video Argentina.mp4"></video>
+            <div class="filter-controls feed-card__filters">
+              <button class="btn btn--filter" data-filter="none">Original</button>
+              <button class="btn btn--filter" data-filter="blur">Desenfoque</button>
+              <button class="btn btn--filter" data-filter="pixel">Pixelado</button>
+              <button class="btn btn--filter" data-filter="thermal">Térmica</button>
+              <button class="btn btn--filter" data-filter="pastel">Pastel</button>
+              <button class="btn btn--filter" data-filter="saturate">Saturación</button>
+              <button class="btn btn--filter" data-filter="smooth">Suavizado</button>
+            </div>
+          </div>
+          <div class="feed-card">
+            <div class="feed-card__label">🇯🇵 JAPÓN</div>
+            <video controls playsinline preload="metadata" class="video feed-card__video" src="assets/videos/Video Japon.mp4"></video>
+            <div class="filter-controls feed-card__filters">
+              <button class="btn btn--filter" data-filter="none">Original</button>
+              <button class="btn btn--filter" data-filter="blur">Desenfoque</button>
+              <button class="btn btn--filter" data-filter="pixel">Pixelado</button>
+              <button class="btn btn--filter" data-filter="thermal">Térmica</button>
+              <button class="btn btn--filter" data-filter="pastel">Pastel</button>
+              <button class="btn btn--filter" data-filter="saturate">Saturación</button>
+              <button class="btn btn--filter" data-filter="smooth">Suavizado</button>
+            </div>
+          </div>
+          <div class="feed-card">
+            <div class="feed-card__label">🇰🇷 COREA DEL SUR</div>
+            <video controls playsinline preload="metadata" class="video feed-card__video" src="assets/videos/Video CoreaDelSur.mp4"></video>
             <div class="filter-controls feed-card__filters">
               <button class="btn btn--filter" data-filter="none">Original</button>
               <button class="btn btn--filter" data-filter="blur">Desenfoque</button>
@@ -355,32 +307,30 @@
       </div>
     </section>
 
+    <video id="feedVideo" playsinline preload="metadata" style="display:none;"></video>
+
     <!-- Pantalla Editor de video -->
     <section class="screen" data-screen="s3">
       <div class="container">
         <h2>🎬 Editor de video</h2>
         <div class="card">
           <h3>🎥 Acervo Mundial 2026</h3>
-          <div class="video-gallery" id="videoGallery">
-            <button class="btn btn-thumb" data-vsrc="https://www.w3schools.com/html/mov_bbb.mp4">Jugada 1</button>
-            <button class="btn btn-thumb" data-vsrc="https://www.w3schools.com/html/movie.mp4">Goles</button>
-            <button class="btn btn-thumb" data-vsrc="https://samplelib.com/lib/preview/mp4/sample-5s.mp4">Estadio</button>
-            <button class="btn btn-thumb" data-vsrc="assets/videos/final_2026.mp4">Gran Final</button>
-            <button class="btn btn-thumb" data-vsrc="assets/videos/resumen_mexico.mp4">Goles México</button>
+          <div class="video-gallery">
+            <button class="btn btn-thumb" data-vsrc="assets/videos/Video Mexico.mp4">🇲🇽 México</button>
+            <button class="btn btn-thumb" data-vsrc="assets/videos/Video Alemania.mp4">🇩🇪 Alemania</button>
+            <button class="btn btn-thumb" data-vsrc="assets/videos/Video USA.mp4">🇺🇸 USA</button>
+            <button class="btn btn-thumb" data-vsrc="assets/videos/Video Canada.mp4">🇨🇦 Canadá</button>
+            <button class="btn btn-thumb" data-vsrc="assets/videos/Video Espania.mp4">🇪🇸 España</button>
+            <button class="btn btn-thumb" data-vsrc="assets/videos/Video Portugal.mp4">🇵🇹 Portugal</button>
+            <button class="btn btn-thumb" data-vsrc="assets/videos/Video Francia.mp4">🇫🇷 Francia</button>
+            <button class="btn btn-thumb" data-vsrc="assets/videos/Video Argentina.mp4">🇦🇷 Argentina</button>
+            <button class="btn btn-thumb" data-vsrc="assets/videos/Video Japon.mp4">🇯🇵 Japón</button>
+            <button class="btn btn-thumb" data-vsrc="assets/videos/Video CoreaDelSur.mp4">🇰🇷 Corea del Sur</button>
           </div>
-          <hr style="margin: 20px 0; border: 0; border-top: 1px solid var(--border);">
+          <hr>
           <div class="row"><label>📂 Sube tu propio clip:</label><input type="file" id="videoInput" accept="video/*" /></div>
-          <div class="row" style="margin-top:12px;">
-            <div id="selectedVideoContainer" class="video-container">
-              <video id="selectedVideo" playsinline class="video"></video>
-              <div class="custom-controls">
-                <button class="play-btn">▶</button>
-                <input type="range" class="seek-bar" value="0" min="0" step="0.1">
-                <span class="time-display">0:00</span>
-              </div>
-            </div>
-          </div>
-          <div class="filter-controls" id="editorFilterControls">
+          <video id="selectedVideo" controls playsinline class="video" style="max-width:100%; margin-top:12px"></video>
+          <div class="filter-controls">
             <button class="btn btn--filter" data-filter="none">Original</button>
             <button class="btn btn--filter" data-filter="blur">Desenfoque</button>
             <button class="btn btn--filter" data-filter="pixel">Pixelado</button>
@@ -397,15 +347,30 @@
     <section class="screen" data-screen="s4">
       <div class="container">
         <h2>🔍 Realidad Aumentada</h2>
-        <div style="height: 380px; position: relative; z-index: 9998; border-radius: 14px; border: 2px solid rgba(79,224,181,0.3); overflow: hidden; background: rgba(0,0,0,0.5);">
-          <p style="color: var(--muted); text-align:center; padding-top: 170px; margin:0;">📷 La cámara aparecerá aquí</p>
+        <div class="card" style="position: relative; min-height: 380px; overflow: hidden;">
+          <a-scene mindar-image="imageTargetSrc: ./escudos.mind; autoStart: false; uiLoading: no; uiScanning: no; uiError: no;" color-space="sRGB" renderer="colorManagement: true; antialias: false; precision: mediump;" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false" embedded style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;">
+            <a-assets></a-assets>
+            <a-camera position="0 0 0" look-controls="enabled: false" near="0.1" far="1000"></a-camera>
+            <a-light type="ambient" color="#ffffff" intensity="0.4"></a-light>
+            <a-light type="directional" color="#ffffff" intensity="0.8" position="-1 1 1"></a-light>
+            <a-entity mindar-image-target="targetIndex: 0"><a-text value="MÉXICO" color="white" align="center" position="0 0.6 0"></a-text></a-entity>
+            <a-entity mindar-image-target="targetIndex: 1"><a-text value="ALEMANIA" color="white" align="center" position="0 0.6 0"></a-text></a-entity>
+            <a-entity mindar-image-target="targetIndex: 2"><a-text value="CANADÁ" color="white" align="center" position="0 0.6 0"></a-text></a-entity>
+            <a-entity mindar-image-target="targetIndex: 3"><a-text value="COREA DEL SUR" color="white" align="center" position="0 0.6 0"></a-text></a-entity>
+            <a-entity mindar-image-target="targetIndex: 4"><a-text value="ESPAÑA" color="white" align="center" position="0 0.6 0"></a-text></a-entity>
+            <a-entity mindar-image-target="targetIndex: 5"><a-text value="FRANCIA" color="white" align="center" position="0 0.6 0"></a-text></a-entity>
+            <a-entity mindar-image-target="targetIndex: 6"><a-text value="ARGENTINA" color="white" align="center" position="0 0.6 0"></a-text></a-entity>
+            <a-entity mindar-image-target="targetIndex: 7"><a-text value="JAPÓN" color="white" align="center" position="0 0.6 0"></a-text></a-entity>
+            <a-entity mindar-image-target="targetIndex: 8"><a-text value="PORTUGAL" color="white" align="center" position="0 0.6 0"></a-text></a-entity>
+            <a-entity mindar-image-target="targetIndex: 9"><a-text value="USA" color="white" align="center" position="0 0.6 0"></a-text></a-entity>
+          </a-scene>
         </div>
-        <div class="row" style="margin-top: 15px; position: relative; z-index: 10001;">
+        <div class="row" style="margin-top: 15px;">
           <button class="btn btn--primary" id="startScanBtn">📷 Iniciar cámara</button>
           <button class="btn" id="stopScanBtn" disabled>⏹️ Detener</button>
         </div>
-        <div class="card card--inner" style="position: relative; z-index: 10001;">
-          <div><span id="qrStatus" class="muted">En espera...</span></div>
+        <div class="card card--inner">
+          <div class="row"><span id="qrStatus" class="muted" style="font-size:0.85rem; width:100%;">Listo. Pulsa iniciar.</span></div>
           <div class="row row--space"><span class="muted">🎯 Escudo detectado:</span><span id="qrValue" class="mono">—</span></div>
           <div class="playerCard" id="playerCard" hidden>
             <div class="playerCard__top"><div class="playerCard__name" id="playerName">—</div><div class="playerCard__meta">Selección Nacional</div></div>
@@ -413,11 +378,7 @@
           </div>
           <div class="grid">
             <button class="btn" data-player-action="anim" disabled>🎬 Animar</button>
-          <div class="btn-group">
-            <button class="btn" data-player-action="rotate-left" disabled>⬅️</button>
-            <div class="btn-group__label">Rotar</div>
-            <button class="btn" data-player-action="rotate-right" disabled>➡️</button>
-          </div>
+            <button class="btn" data-player-action="info" disabled>ℹ️ Info</button>
             <button class="btn" data-player-action="video" disabled>🎥 Video</button>
             <button class="btn" data-player-action="fx" disabled>✨ FX</button>
           </div>
@@ -468,7 +429,7 @@
             <div class="guide-icon">🎬</div>
             <div class="guide-content">
               <div class="guide-title">Editor de video</div>
-              <div class="guide-text">Selecciona un video del acervo o sube el tuyo propio. Aplica filtros creativos (desenfoque, pixelado, térmica, sepia, etc.) y guarda tus creaciones.</div>
+              <div class="guide-text">Selecciona un video del acervo o sube el tuyo propio. Aplica filtros creativos (desenfoque, pixelado, térmica, saturación, etc.) y guarda tus creaciones.</div>
             </div>
             <div class="guide-badge">Paso 2</div>
           </div>
@@ -521,35 +482,18 @@
     <button class="tab" data-nav="s8">🎮 Guía</button>
   </nav>
 </div>
-<!-- A-SCENE FUERA DEL SISTEMA DE PANTALLAS -->
-  <a-scene id="arScene" mindar-image="imageTargetSrc: ./escudos.mind; autoStart: false; uiLoading: no; uiScanning: no; uiError: no; filterMinCF:0.0001; filterBeta: 0.001;" color-space="sRGB" renderer="colorManagement: true; antialias: false; precision: mediump;" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false" embedded
-  style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; display: none; pointer-events: none;">
-    <a-assets timeout="30000"></a-assets>
-    <a-camera position="0 0 0" look-controls="enabled: false" near="0.1" far="1000"></a-camera>
-    <a-light type="ambient" color="#ffffff" intensity="0.4"></a-light>
-    <a-light type="directional" color="#ffffff" intensity="0.8" position="-1 1 1"></a-light>
-    <a-entity mindar-image-target="targetIndex: 0" target-monitor></a-entity>
-    <a-entity mindar-image-target="targetIndex: 1" target-monitor></a-entity>
-    <a-entity mindar-image-target="targetIndex: 2" target-monitor></a-entity>
-    <a-entity mindar-image-target="targetIndex: 3" target-monitor></a-entity>
-    <a-entity mindar-image-target="targetIndex: 4" target-monitor></a-entity>
-    <a-entity mindar-image-target="targetIndex: 5" target-monitor></a-entity>
-    <a-entity mindar-image-target="targetIndex: 6" target-monitor></a-entity>
-    <a-entity mindar-image-target="targetIndex: 7" target-monitor></a-entity>
-    <a-entity mindar-image-target="targetIndex: 8" target-monitor></a-entity>
-    <a-entity mindar-image-target="targetIndex: 9" target-monitor></a-entity>
-  </a-scene>
-
-<!-- Filtro SVG para Pixelado -->
-<svg width="0" height="0" style="position:absolute;">
-  <filter id="pixelate" x="0%" y="0%" width="100%" height="100%">
-    <feFlood x="0" y="0" width="4" height="4" result="m-flood" />
-    <feComposite in="m-flood" width="8" height="8" operator="over" result="m-composite" />
-    <feTile in="m-composite" result="m-tile" />
-    <feComposite in="SourceGraphic" in2="m-tile" operator="in" />
-    <feMorphology operator="dilate" radius="4" />
-  </filter>
-</svg>
 <script src="app.js"></script>
+  <!-- SVG filters para efectos de video -->
+  <svg xmlns="http://www.w3.org/2000/svg" style="display:none; position:absolute; width:0; height:0;">
+    <defs>
+      <filter id="pixelate" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+        <feFlood x="4" y="4" height="2" width="2"/>
+        <feComposite width="10" height="10"/>
+        <feTile result="a"/>
+        <feComposite in="SourceGraphic" in2="a" operator="in"/>
+        <feMorphology operator="dilate" radius="5"/>
+      </filter>
+    </defs>
+  </svg>
 </body>
 </html>

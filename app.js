@@ -452,6 +452,13 @@ document.addEventListener('DOMContentLoaded', () => {
       model.addEventListener('model-loaded', () => {
         const st = getQrStatus();
         if (st) st.textContent = `✅ ${data.name} cargado`;
+        // Iniciar animación automáticamente al cargar el modelo
+        const mesh = model.getObject3D('mesh');
+        if (mesh && mesh.animations && mesh.animations.length > 0) {
+          const firstClip = mesh.animations[0].name;
+          model.setAttribute('animation-mixer', `clip: ${firstClip}; loop: repeat; timeScale: 1`);
+          console.log(`🎬 Animación iniciada: ${firstClip}`);
+        }
       });
       detail.el.appendChild(model);
     }
