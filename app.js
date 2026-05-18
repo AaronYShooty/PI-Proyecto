@@ -1,4 +1,5 @@
 // --- HERRAMIENTA DE DEPURACIÓN GLOBAL ---
+// logToScreen
 window.logToScreen = function(msg, color = '#0f0') {
   let debugDiv = document.getElementById('debugDiv');
   if (!debugDiv) {
@@ -15,31 +16,106 @@ window.logToScreen = function(msg, color = '#0f0') {
   if (debugDiv.children.length > 8) debugDiv.lastChild.remove();
 };
 
+// --- DATOS GLOBALES ---
+const teamsCollection = [
+  { name: 'México', icon: '🇲🇽' }, { name: 'Alemania', icon: '🇩🇪' }, { name: 'Canadá', icon: '🇨🇦' },
+  { name: 'Corea del Sur', icon: '🇰🇷' }, { name: 'España', icon: '🇪🇸' }, { name: 'Francia', icon: '🇫🇷' },
+  { name: 'Argentina', icon: '🇦🇷' }, { name: 'Japón', icon: '🇯🇵' }, { name: 'Portugal', icon: '🇵🇹' },
+  { name: 'USA', icon: '🇺🇸' }
+];
+
+const teamsData = [
+  { name: 'México', continent: 'Norteamérica', group: 'A', cups: '0 copas ganadas', model: 'assets/Modelos/M00_Mexico_comp.glb', video: 'assets/videos/resumen_mexico.mp4' },
+  { name: 'Alemania', continent: 'Europeo', group: 'E', cups: '4 copas varoniles ganadas', model: 'assets/Modelos/M01_Alemania.glb', video: 'https://www.w3schools.com/html/mov_bbb.mp4' },
+  { name: 'Canadá', continent: 'Norteamérica', group: 'B', cups: '0 copas ganadas', model: 'assets/Modelos/M02_Canada.glb', video: 'https://samplelib.com/lib/preview/mp4/sample-5s.mp4' },
+  { name: 'Corea del Sur', continent: 'Asiático', group: 'A', cups: '0 copas ganadas', model: 'assets/Modelos/M03_CoreaDelSur.glb', video: 'https://www.w3schools.com/html/movie.mp4' },
+  { name: 'España', continent: 'Europeo', group: 'H', cups: '1 copa varonil ganada', model: 'assets/Modelos/M04_Espania.glb', video: 'https://www.w3schools.com/html/mov_bbb.mp4' },
+  { name: 'Francia', continent: 'Europeo', group: 'I', cups: '2 copas varoniles ganadas', model: 'assets/Modelos/M05_Francia.glb', video: 'https://samplelib.com/lib/preview/mp4/sample-5s.mp4' },
+  { name: 'Argentina', continent: 'Sudamérica', group: 'J', cups: '3 copas varoniles ganadas', model: 'assets/Modelos/M06_Argentina.glb', video: 'https://www.w3schools.com/html/movie.mp4' },
+  { name: 'Japón', continent: 'Asiático', group: 'F', cups: '0 copas ganadas', model: 'assets/Modelos/M07_Japon.glb', video: 'https://www.w3schools.com/html/mov_bbb.mp4' },
+  { name: 'Portugal', continent: 'Europeo', group: 'K', cups: '0 copas ganadas', model: 'assets/Modelos/M08_Portugal.glb', video: 'https://samplelib.com/lib/preview/mp4/sample-5s.mp4' },
+  { name: 'USA', continent: 'Norteamérica', group: 'B', cups: '4 copas femeniles, 0 var.', model: 'assets/Modelos/M09_USA.glb', video: 'assets/videos/final_2026.mp4' }
+];
+// model-loaded
 // --- COMPONENTE A-FRAME PARA DETECCIÓN ---
 if (typeof AFRAME !== 'undefined') {
   AFRAME.registerComponent('target-monitor', {
     init: function () {
-      this.el.addEventListener('mindar-image-target-found', (e) => {
-        const evt = new CustomEvent('game-target-found', { detail: { ...e.detail, el: this.el } });
-        document.body.dispatchEvent(evt);
+      this.el.addEventListener('mindar-image-target-found', () => {
+
+        let index;
+        const targetData = this.el.getAttribute('mindar-image-target');
+        if (typeof targetData === 'object' && targetData !== null) {
+          index = targetData.targetIndex ?? targetData.index;
+        } else {
+          // A-Frame devolvió el atributo como string: "targetIndex: 0"
+          const match = String(targetData).match(/targetIndex\s*:\s*(\d+)/);
+          index = match ? parseInt(match[1]) : undefined;
+        }
+        
+        window.logToScreen('1. Escudo detectado. Índice: ' + index, '#0f0'); 
+
+        // CORRECCIÓN: Usar teamsData que contiene las rutas de los modelos .glb
+        const data = teamsData[index];
+        
+        if (!data) {
+          window.logToScreen('ERROR: No hay datos en teamsData para el índice ' + index, '#f00');
+          return; 
+        }
+        
+        window.logToScreen('2. Cargando modelo: ' + data.name, '#0f0');
+        
+        if (index !== undefined) {
+          document.body.dispatchEvent(new CustomEvent('game-target-found', { 
+            detail: { targetIndex: parseInt(index), el: this.el }
+          }));
+        }
       });
+
       this.el.addEventListener('mindar-image-target-lost', (e) => {
-        const evt = new CustomEvent('game-target-lost', { detail: { ...e.detail, el: this.el } });
-        document.body.dispatchEvent(evt);
+        let index;
+        const targetData = this.el.getAttribute('mindar-image-target');
+        if (typeof targetData === 'object' && targetData !== null) {
+          index = targetData.targetIndex ?? targetData.index;
+        } else {
+          // A-Frame devolvió el atributo como string: "targetIndex: 0"
+          const match = String(targetData).match(/targetIndex\s*:\s*(\d+)/);
+          index = match ? parseInt(match[1]) : undefined;
+        }
+        if (index !== undefined) {
+          document.body.dispatchEvent(new CustomEvent('game-target-lost', { 
+            detail: { targetIndex: parseInt(index), el: this.el } 
+          }));
+        }
       });
     }
   });
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  window.logToScreen('DOMContentLoaded iniciado', '#ffff00'); // ← agrega esto
   const startScanBtn = document.getElementById('startScanBtn');
   const stopScanBtn = document.getElementById('stopScanBtn');
+  const qrStatus = document.getElementById('qrStatus');
   const qrValue = document.getElementById('qrValue');
-  const arScene = document.querySelector('a-scene');
+  const topbarTitle = document.getElementById('topbarTitle');
+  const arScene = document.getElementById('arScene');
   const playerCard = document.getElementById('playerCard');
 
-  // qrStatus ahora existe en el HTML; se accede por función para evitar referencias stale
-  const getQrStatus = () => document.getElementById('qrStatus');
+  // Get references to player card elements once
+  const playerNameSpan = document.getElementById('playerName');
+  const teamContinentSpan = document.getElementById('teamContinent');
+  const teamGroupSpan = document.getElementById('teamGroup');
+  const teamCupsSpan = document.getElementById('teamCups');
+
+  // --- EFECTOS DE SONIDO ---
+  const soundSuccess = new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3');
+  const soundCelebration = new Audio('https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3');
+
+  // Referencias del editor de video (Movidas al inicio para evitar errores de referencia)
+  const videoInput = document.getElementById('videoInput'); 
+  const selectedVideo = document.getElementById('selectedVideo');
+  const selectedVideoContainer = document.getElementById('selectedVideoContainer');
 
   // Redirigir console.log a la pantalla
   const originalLog = console.log;
@@ -53,6 +129,51 @@ document.addEventListener('DOMContentLoaded', () => {
   console.error = (...args) => {
     originalError(...args);
     window.logToScreen("ERROR: " + args.join(' '), '#ff4444');
+  };
+
+  // --- MEJORA DE FILTROS: Manejo de Interacción y Controles Personalizados ---
+  // Agrega una clase 'interacting' para desactivar filtros mientras se usan los controles
+  const initCustomControls = (video) => {
+    // Evitar inicializar múltiples veces
+    if (!video || video.dataset.controlsSet === "true") return;
+
+    const container = video.parentElement;
+    const playBtn = container.querySelector('.play-btn');
+    const seekBar = container.querySelector('.seek-bar');
+    const timeDisplay = container.querySelector('.time-display');
+    
+    if (!playBtn || !seekBar || !timeDisplay) return;
+
+    video.dataset.controlsSet = "true"; // Marcar que los controles ya fueron configurados
+    video.removeAttribute('controls'); // Eliminar controles nativos
+
+    // Estado inicial
+    video.setAttribute('data-playing', video.paused ? 'false' : 'true');
+
+    // Alternar Play/Pause
+    playBtn.addEventListener('click', () => {
+      if (video.paused) video.play();
+      else video.pause();
+    });
+    video.addEventListener('play', () => {
+      playBtn.textContent = '⏸';
+      video.setAttribute('data-playing', 'true');
+    });
+    video.addEventListener('pause', () => {
+      playBtn.textContent = '▶';
+      video.setAttribute('data-playing', 'false');
+    });
+
+    // Actualizar barra de progreso
+    video.addEventListener('timeupdate', () => {
+      const value = (100 / video.duration) * video.currentTime;
+      seekBar.value = value || 0;
+      let mins = Math.floor(video.currentTime / 60);
+      let secs = Math.floor(video.currentTime % 60);
+      timeDisplay.textContent = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+    });
+    seekBar.addEventListener('input', () => { video.currentTime = video.duration * (seekBar.value / 100); });
+    video.addEventListener('click', () => { if (video.paused) video.play(); else video.pause(); });
   };
 
   // ========== TRIVIA: 50 PREGUNTAS (5 por cada uno de los 10 equipos) ==========
@@ -151,8 +272,7 @@ document.addEventListener('DOMContentLoaded', () => {
     correctCount: 0,
     incorrectCount: 0,
     answered: false,
-    total: 50,
-    shuffledCorrectIndex: 0
+    total: 50
   };
 
   function reiniciarTrivia() {
@@ -161,7 +281,6 @@ document.addEventListener('DOMContentLoaded', () => {
     triviaState.correctCount = 0;
     triviaState.incorrectCount = 0;
     triviaState.answered = false;
-    triviaState.shuffledCorrectIndex = 0;
     actualizarContadores();
     mostrarPregunta();
   }
@@ -206,15 +325,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (questionTextSpan) questionTextSpan.textContent = pregunta.question;
     if (feedbackDiv) feedbackDiv.hidden = true;
 
-    // Separar correcta e incorrectas, elegir posición aleatoria garantizada
-    const correctText = pregunta.options[pregunta.correct];
-    const wrongOptions = shuffleArray(pregunta.options.filter((_, i) => i !== pregunta.correct));
-    const correctPosition = Math.floor(Math.random() * 4);
-    const finalOptions = [...wrongOptions];
-    finalOptions.splice(correctPosition, 0, correctText);
-    triviaState.shuffledCorrectIndex = correctPosition;
-
-    finalOptions.forEach((option, index) => {
+    pregunta.options.forEach((option, index) => {
       const optionSpan = document.getElementById(`option${index}`);
       if (optionSpan) optionSpan.textContent = option;
     });
@@ -233,11 +344,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (triviaState.answered) return;
 
     const pregunta = preguntasAleatorias[triviaState.currentIndex];
-    const correctIndex = triviaState.shuffledCorrectIndex;
-    const isCorrect = selectedIndex === correctIndex;
+    const isCorrect = selectedIndex === pregunta.correct;
     const feedback = document.getElementById('feedbackMessage');
     const selectedBtn = document.querySelector(`.trivia-btn[data-index="${selectedIndex}"]`);
-    const correctBtn = document.querySelector(`.trivia-btn[data-index="${correctIndex}"]`);
+    const correctBtn = document.querySelector(`.trivia-btn[data-index="${pregunta.correct}"]`);
 
     triviaState.answered = true;
 
@@ -272,7 +382,7 @@ document.addEventListener('DOMContentLoaded', () => {
       mostrarPregunta();
     }, 2000);
   }
-
+//  
   // Inicializar eventos de trivia cuando el DOM esté listo
   function initTriviaEvents() {
     const btns = document.querySelectorAll('.trivia-btn');
@@ -302,11 +412,16 @@ document.addEventListener('DOMContentLoaded', () => {
   let qrScanInterval = null;
   let arCheckInterval = null;
   const canvas = document.createElement('canvas');
-  const context = canvas.getContext('2d');
+  const context = canvas.getContext('2d', { willReadFrequently: true });
 
   const scanQRCode = () => {
-    const video = document.querySelector('video');
-    if (!video || video.readyState !== video.HAVE_ENOUGH_DATA) return;
+    // Buscamos el video de la cámara (MindAR crea uno sin ID)
+    // Evitamos agarrar los videos de los perfiles/feed que sí tienen ID o clase
+    const allVideos = Array.from(document.querySelectorAll('video'));
+    const cameraVideo = allVideos.find(v => !v.id && !v.classList.contains('feed-card__video')) || allVideos[0];
+    
+    if (!cameraVideo || cameraVideo.readyState !== cameraVideo.HAVE_ENOUGH_DATA) return;
+    const video = cameraVideo;
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
@@ -315,17 +430,21 @@ document.addEventListener('DOMContentLoaded', () => {
       const code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: "dontInvert" });
       if (code) {
         console.log("QR Encontrado:", code.data);
-        const qrStatus = getQrStatus();
-        if (qrStatus) qrStatus.textContent = '¡QR Detectado!';
-        if (qrStatus) qrStatus.style.color = '#00ffff';
+        qrStatus.textContent = '¡QR Detectado!';
+        qrStatus.style.color = '#00ffff';
         qrValue.textContent = code.data;
       }
     }
   };
 
   const getARSystem = () => {
-    if (arScene && arScene.systems && arScene.systems["mindar-image-system"]) {
-      return arScene.systems["mindar-image-system"];
+    if (!arScene) return null;
+    // Intento 1: Vía sistemas de la escena
+    let system = arScene.systems && arScene.systems["mindar-image-system"];
+    if (system) return system;
+    // Intento 2: Vía componente (algunas versiones lo exponen aquí)
+    if (arScene.components && arScene.components["mindar-image"]) {
+      return arScene.components["mindar-image"].system;
     }
     return null;
   };
@@ -333,148 +452,236 @@ document.addEventListener('DOMContentLoaded', () => {
   if (arScene) {
     arScene.addEventListener('mindar-image-ready', () => {
       console.log("MindAR: Ready event received");
-      const _qs335=getQrStatus(); if (_qs335) _qs335.textContent = 'Motor AR cargado. Pulsa iniciar.';
+      if (qrStatus) qrStatus.textContent = 'Motor AR cargado. Pulsa iniciar.';
     });
     arScene.addEventListener('mindar-image-error', (e) => {
       console.error("MindAR Error:", e);
-      const _qs339=getQrStatus(); if (_qs339) _qs339.textContent = 'Error: No se pudo cargar targets.mind';
+      if (qrStatus) qrStatus.textContent = 'Error: No se pudo cargar targets.mind';
     });
   }
 
-  startScanBtn.addEventListener('click', () => {
-    arSystem = getARSystem();
-    if (!arSystem) {
-      alert("El sistema AR no está listo. Revisa la consola.");
-      return;
-    }
-    console.log('Iniciando MindAR y Scanner QR...');
-    const _qs350=getQrStatus(); if (_qs350) _qs350.textContent = 'Cámara activa. Buscando...';
-    startScanBtn.disabled = true;
-    try {
-      if (!arSystem.ui) {
-        arSystem.ui = { showLoading: () => {}, removeLoading: () => {}, showScanning: () => {}, showError: () => {} };
+  window.logToScreen('Registrando startScanBtn listener...', '#ffff00'); // ← agrega esto
+  
+  startScanBtn.addEventListener('click', async () => {
+    window.logToScreen('CLICK RECIBIDO', '#ff0000');
+    window.logToScreen('Click en iniciar. arScene: ' + (arScene ? 'OK' : 'NULL') + ' hasLoaded: ' + (arScene && arScene.hasLoaded), '#ffff00');
+
+    const initAR = async () => {
+      // Intentar obtener el sistema
+      arSystem = getARSystem();
+
+      // Si no está, esperar un poco (re-intento por timing de inicialización)
+      if (!arSystem) {
+        window.logToScreen("Motor AR no listo, reintentando...", "#ff9900");
+        await new Promise(r => setTimeout(r, 600));
+        arSystem = getARSystem();
       }
-      arSystem.start();
-      if (qrScanInterval) clearInterval(qrScanInterval);
-      qrScanInterval = setInterval(scanQRCode, 500);
-      if (arCheckInterval) clearInterval(arCheckInterval);
-      arCheckInterval = setInterval(() => {
-        const arTargets = document.querySelectorAll('[mindar-image-target]');
-        arTargets.forEach((target, index) => {
-          if (target.object3D && target.object3D.visible) {
-            if (activeTargetIndex !== index) {
-              const evt = new CustomEvent('game-target-found', { detail: { targetIndex: index, el: target } });
-              document.body.dispatchEvent(evt);
-            }
-          } else {
-            if (activeTargetIndex === index) {
-              const evt = new CustomEvent('game-target-lost', { detail: { targetIndex: index, el: target } });
-              document.body.dispatchEvent(evt);
-            }
-          }
-        });
-      }, 250);
-      stopScanBtn.disabled = false;
-    } catch (err) {
-      console.error(err);
-      const _qs379=getQrStatus(); if (_qs379) _qs379.textContent = 'Error al iniciar: ' + err.message;
-      startScanBtn.disabled = false;
+
+      if (!arSystem) {
+        window.logToScreen("Error: Motor AR no encontrado.", "#ff4444");
+        alert("El motor de Realidad Aumentada no ha cargado. Esto sucede si la conexión es lenta. Por favor, refresca la página e intenta de nuevo.");
+        startScanBtn.disabled = false;
+        return;
+      }
+      
+      // Desbloquear audio
+      await soundSuccess.play().then(() => { soundSuccess.pause(); soundSuccess.currentTime = 0; }).catch(() => {});
+      await soundCelebration.play().then(() => { soundCelebration.pause(); soundCelebration.currentTime = 0; }).catch(() => {});
+
+    window.logToScreen("Iniciando motor AR...");
+      if (qrStatus) qrStatus.textContent = 'Iniciando motor AR...';
+      startScanBtn.disabled = true;
+      
+      try {
+        if (!arSystem.ui) {
+          arSystem.ui = { showLoading: () => {}, removeLoading: () => {}, showScanning: () => {}, showError: () => {} };
+        }
+        await arSystem.start();
+
+        document.body.classList.add('ar-active');
+
+        arScene.style.display = 'block';
+        arScene.style.pointerEvents = 'none'; // los botones siguen funcionando
+        document.querySelector('[data-screen="s4"]').style.background = 'transparent';
+
+        window.logToScreen("¡Cámara activa! Buscando escudos...", "#4fe0b5");
+        if (qrStatus) qrStatus.textContent = 'Cámara activa. Buscando...';
+
+        if (qrScanInterval) clearInterval(qrScanInterval);
+        qrScanInterval = setInterval(scanQRCode, 500);
+
+        const arTargets = Array.from(document.querySelectorAll('[mindar-image-target]'));
+        setTimeout(() => {
+          if (arCheckInterval) clearInterval(arCheckInterval);
+          arCheckInterval = setInterval(() => {
+            arTargets.forEach((target, index) => {
+              if (target.object3D && target.object3D.visible) {
+                if (activeTargetIndex !== index) {
+                  document.body.dispatchEvent(new CustomEvent('game-target-found', {
+                    detail: { targetIndex: index, el: target }
+                  }));
+                }
+              } else {
+                if (activeTargetIndex === index) {
+                  document.body.dispatchEvent(new CustomEvent('game-target-lost', {
+                    detail: { targetIndex: index, el: target }
+                  }));
+                }
+              }
+            });
+          }, 250);
+        }, 1000);
+
+        stopScanBtn.disabled = false;
+      } catch (err) {
+        console.error(err);
+        if (qrStatus) qrStatus.textContent = 'Error: ' + err.message;
+        startScanBtn.disabled = false;
+      }
+    };
+
+    if (!arScene.hasLoaded) {
+      window.logToScreen("Cargando escena...", "#ff9900");
+      arScene.addEventListener('loaded', initAR, { once: true });
+    } else {
+      await initAR();
     }
   });
 
   stopScanBtn.addEventListener('click', () => {
     arSystem = arSystem || getARSystem();
     if (arSystem) arSystem.stop();
-    document.querySelectorAll('[mindar-image-target]').forEach(target => {
-      target.setAttribute('visible', false);
-      const model = target.querySelector('.ar-model');
-      if (model) model.removeAttribute('animation-mixer');
-    });
-    if (qrScanInterval) { clearInterval(qrScanInterval); qrScanInterval = null; }
-    if (arCheckInterval) { clearInterval(arCheckInterval); arCheckInterval = null; }
-    const video = document.querySelector('video');
-    if (video && video.srcObject) {
-      const tracks = video.srcObject.getTracks();
-      tracks.forEach(track => track.stop());
-      video.srcObject = null;
-    }
+    arScene.style.display = 'none';
+    document.body.classList.remove('ar-active');
+    // Resetear estado
     startScanBtn.disabled = false;
     stopScanBtn.disabled = true;
-    const _qs402=getQrStatus(); if (_qs402) _qs402.textContent = 'Cámara detenida.';
-    if (qrValue) qrValue.textContent = '—';
     activeModel = null;
     activeTargetIndex = -1;
     if (playerCard) playerCard.hidden = true;
     document.querySelectorAll('[data-player-action]').forEach(btn => btn.disabled = true);
+    if (qrScanInterval) { clearInterval(qrScanInterval); qrScanInterval = null; }
+    if (arCheckInterval) { clearInterval(arCheckInterval); arCheckInterval = null; }
+    if (qrStatus) qrStatus.textContent = 'Cámara detenida. Recarga para usar de nuevo.';
   });
 
-  const arTargets = document.querySelectorAll('[mindar-image-target]');
-  arTargets.forEach(t => t.setAttribute('target-monitor', ''));
+  // Inicializar controles personalizados para videos existentes en el feed
+  document.querySelectorAll('.feed-card .video').forEach(video => initCustomControls(video));
+  if (selectedVideo) initCustomControls(selectedVideo);
 
-  const teamsData = [
-    { name: 'México', continent: 'Americano', group: 'A', cups: '0 copas ganadas', model: 'assets/Modelos/M00_Mexico.glb', video: 'assets/videos/Video Mexico.mp4' },
-    { name: 'Alemania', continent: 'Europeo', group: 'E', cups: '4 copas varoniles ganadas', model: 'assets/Modelos/M01_Alemania.glb', video: 'assets/videos/Video Alemania.mp4' },
-    { name: 'Canadá', continent: 'América', group: 'B', cups: '0 copas ganadas', model: 'assets/Modelos/M02_Canada.glb', video: 'assets/videos/Video Canada.mp4' },
-    { name: 'Corea del Sur', continent: 'Asiático', group: 'A', cups: '0 copas ganadas', model: 'assets/Modelos/M03_CoreaDelSur.glb', video: 'assets/videos/Video CoreaDelSur.mp4' },
-    { name: 'España', continent: 'Europeo', group: 'H', cups: '1 copa varonil ganada', model: 'assets/Modelos/M04_Espania.glb', video: 'assets/videos/Video Espania.mp4' },
-    { name: 'Francia', continent: 'Europeo', group: 'I', cups: '2 copas varoniles ganadas', model: 'assets/Modelos/M05_Francia.glb', video: 'assets/videos/Video Francia.mp4' },
-    { name: 'Argentina', continent: 'Sudamérica', group: 'J', cups: '3 copas varoniles ganadas', model: 'assets/Modelos/M06_Argentina.glb', video: 'assets/videos/Video Argentina.mp4' },
-    { name: 'Japón', continent: 'Asiático', group: 'F', cups: '0 copas ganadas', model: 'assets/Modelos/M07_Japon.glb', video: 'assets/videos/Video Japon.mp4' },
-    { name: 'Portugal', continent: 'Europeo', group: 'K', cups: '0 copas ganadas', model: 'assets/Modelos/M08_Portugal.glb', video: 'assets/videos/Video Portugal.mp4' },
-    { name: 'USA', continent: 'América', group: 'B', cups: '4 copas femeniles, 0 var.', model: 'assets/Modelos/M09_USA.glb', video: 'assets/videos/Video USA.mp4' }
-  ];
+  // --- FILTROS DE VIDEO ---
+  // Las clases f-* están definidas en styles.css.
+  // Se agrega/quita solo la clase de filtro sin tocar las demás clases del elemento.
+  const FILTER_CLASSES = ['f-blur', 'f-pixel', 'f-thermal', 'f-pastel', 'f-saturate', 'f-smooth'];
+
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.btn--filter');
+    if (!btn) return;
+
+    const filter = btn.getAttribute('data-filter');
+    const feedCard = btn.closest('.feed-card');
+
+    let targetVideo = null;
+    let filterGroup = null;
+
+    if (feedCard) {
+      targetVideo = feedCard.querySelector('.video');
+      filterGroup = feedCard.querySelectorAll('.btn--filter');
+    } else if (btn.closest('.filter-controls') && selectedVideo) {
+      targetVideo = selectedVideo;
+      filterGroup = btn.closest('.filter-controls').querySelectorAll('.btn--filter');
+    }
+
+    if (!targetVideo) return;
+
+    // Quitar todas las clases de filtro sin afectar otras clases del video
+    FILTER_CLASSES.forEach(cls => targetVideo.classList.remove(cls));
+    if (filter !== 'none') targetVideo.classList.add(`f-${filter}`);
+
+    // Marcar botón activo
+    if (filterGroup) filterGroup.forEach(b => b.classList.remove('active-filter'));
+    btn.classList.add('active-filter');
+  });
 
   document.body.addEventListener('game-target-found', (e) => {
-    const detail = e.detail;
-    console.log("🎯 AR Target Found:", detail.targetIndex);
-    activeTargetIndex = detail.targetIndex;
-    document.querySelectorAll('[data-player-action]').forEach(btn => btn.disabled = false);
-    const _qs431=getQrStatus(); if (_qs431) {
-      _qs431.textContent = `¡Escudo #${detail.targetIndex} Detectado!`;
-      _qs431.style.color = '#4caf50';
-    }
-    if (qrValue) qrValue.textContent = 'ID: ' + detail.targetIndex;
-    const data = teamsData[detail.targetIndex];
-    let model = detail.el.querySelector('.ar-model');
-    if (!model && data) {
-      console.log(`Cargando modelo bajo demanda: ${data.name}`);
-      model = document.createElement('a-gltf-model');
-      model.setAttribute('src', data.model);
-      model.setAttribute('class', 'ar-model');
-      model.setAttribute('position', '0 0 0');
-      model.setAttribute('scale', '0.5 0.5 0.5');
-      model.setAttribute('rotation', '90 0 0');
-      model.addEventListener('model-error', () => {
-        console.error(`No se pudo cargar el modelo 3D: ${data.name}`);
-        const st = getQrStatus();
-        if (st) st.textContent = `⚠️ Modelo de ${data.name} no disponible`;
-      });
-      model.addEventListener('model-loaded', () => {
-        const st = getQrStatus();
-        if (st) st.textContent = `✅ ${data.name} cargado`;
-        // Iniciar animación automáticamente al cargar el modelo
-        const mesh = model.getObject3D('mesh');
-        if (mesh && mesh.animations && mesh.animations.length > 0) {
-          const firstClip = mesh.animations[0].name;
-          model.setAttribute('animation-mixer', `clip: ${firstClip}; loop: repeat; timeScale: 1`);
-          console.log(`🎬 Animación iniciada: ${firstClip}`);
-        }
-      });
-      detail.el.appendChild(model);
-    }
-    activeModel = model;
-    if (playerCard) playerCard.hidden = false;
-    if (data) {
-      const nameSpan = document.getElementById('playerName');
-      const continentSpan = document.getElementById('teamContinent');
-      const groupSpan = document.getElementById('teamGroup');
-      const cupsSpan = document.getElementById('teamCups');
-      if (nameSpan) nameSpan.textContent = data.name;
-      if (continentSpan) continentSpan.textContent = data.continent;
-      if (groupSpan) groupSpan.textContent = data.group;
-      if (cupsSpan) cupsSpan.textContent = data.cups;
+    try {
+      const detail = e.detail;
+      if (detail.targetIndex === undefined || isNaN(detail.targetIndex)) return;
+      
+      if (activeTargetIndex === detail.targetIndex && activeModel) return;
+
+      activeTargetIndex = detail.targetIndex;
+      document.querySelectorAll('[data-player-action]').forEach(btn => btn.disabled = false);
+      if (detail.el) detail.el.setAttribute('visible', true);
+
+      soundSuccess.play().catch(() => {});
+
+      if (qrStatus) {
+        qrStatus.textContent = `¡Escudo #${detail.targetIndex} Detectado!`;
+        qrStatus.style.color = '#4caf50';
+      }
+      if (qrValue) qrValue.textContent = 'ID: ' + detail.targetIndex;
+
+      const data = teamsData[detail.targetIndex];
+      if (!data) {
+          window.logToScreen(`Sin datos para ID ${detail.targetIndex}`, "#ff4444");
+          return;
+      }
+
+      let model = detail.el.querySelector('.ar-model');
+      if (!model) {
+        model = document.createElement('a-gltf-model');
+        model.setAttribute('src', data.model);
+        model.setAttribute('class', 'ar-model');
+        model.setAttribute('rotation', '90 0 0');
+        detail.el.appendChild(model);
+        model.addEventListener('model-loaded', () => {
+          window.logToScreen('✅ Modelo cargado: ' + data.name, '#4fe0b5');
+          model.object3D.visible = false;
+          setTimeout(() => { model.object3D.visible = true; }, 50);
+          // Iniciar primera animación automáticamente
+          const mesh = model.getObject3D('mesh');
+          if (mesh && mesh.animations && mesh.animations.length > 0) {
+            const firstClip = mesh.animations[0].name;
+            model.setAttribute('animation-mixer', `clip: ${firstClip}; loop: repeat; timeScale: 1`);
+            window.logToScreen('🎬 Animación iniciada: ' + firstClip, '#4fe0b5');
+          }
+        });
+
+        model.addEventListener('model-error', (err) => {
+          window.logToScreen('❌ Error modelo: ' + err.detail.message, '#ff4444');
+        });
+      }
+      activeModel = model;
+
+      if (playerCard) playerCard.hidden = false;
+      if (playerNameSpan) playerNameSpan.textContent = data.name;
+      if (teamContinentSpan) teamContinentSpan.textContent = data.continent;
+      if (teamGroupSpan) teamGroupSpan.textContent = data.group;
+      if (teamCupsSpan) teamCupsSpan.textContent = data.cups;
+
+      // Desbloqueo
+      actualizarDesbloqueo(detail.targetIndex);
+    } catch (err) {
+      window.logToScreen("Error en Found: " + err.message, "#ff4444");
     }
   });
+
+  function actualizarDesbloqueo(index) {
+    if (teamsCollection && teamsCollection[index]) {
+      let unlocked = JSON.parse(localStorage.getItem('walletUnlocked') || '[]');
+      if (!unlocked.includes(index)) {
+        unlocked.push(index);
+        localStorage.setItem('walletUnlocked', JSON.stringify(unlocked));
+        updateUnlockedVisuals();
+        const toast = document.createElement('div');
+        toast.textContent = `🏆 ¡${teamsCollection[index].name} desbloqueado!`;
+        toast.style.cssText = 'position:fixed; bottom:80px; left:20px; background:#4fe0b5; color:#0b1020; padding:8px 16px; border-radius:40px; font-weight:bold; z-index:9999;';
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 2500);
+      }
+    }
+  }
 
   document.body.addEventListener('game-target-lost', (e) => {
     const detail = e.detail;
@@ -483,9 +690,83 @@ document.addEventListener('DOMContentLoaded', () => {
       activeModel = null;
       activeTargetIndex = -1;
       document.querySelectorAll('[data-player-action]').forEach(btn => btn.disabled = true);
-      const _qs469=getQrStatus(); if (_qs469) _qs469.textContent = 'Buscando escudo...';
+      if (qrStatus) qrStatus.textContent = 'Buscando escudo...';
     }
   });
+
+  // --- FUNCIONES PARA EFECTOS 3D (DENTRO DEL AR) ---
+  const trigger3DConfetti = (target) => {
+    const colors = ['#4fe0b5', '#ffffff', '#1a2b6a', '#ffeb3b'];
+    for (let i = 0; i < 40; i++) {
+      const p = document.createElement('a-plane');
+      p.setAttribute('color', colors[Math.floor(Math.random() * colors.length)]);
+      p.setAttribute('width', '0.04');
+      p.setAttribute('height', '0.04');
+      p.setAttribute('position', '0 0.2 0'); // Salen desde el centro del escudo
+      
+      const dest = {
+        x: (Math.random() - 0.5) * 2,
+        y: Math.random() * 2,
+        z: (Math.random() - 0.5) * 2
+      };
+      
+      // Animaciones de movimiento, rotación y desvanecimiento
+      p.setAttribute('animation__pos', `property: position; to: ${dest.x} ${dest.y} ${dest.z}; dur: ${1500 + Math.random()*1000}; easing: easeOutQuad`);
+      p.setAttribute('animation__rot', `property: rotation; to: ${Math.random()*360} ${Math.random()*360} ${Math.random()*360}; dur: 2000; loop: true`);
+      p.setAttribute('animation__op', `property: opacity; from: 1; to: 0; dur: 2000; easing: easeInQuad`);
+      
+      target.appendChild(p);
+      setTimeout(() => { if(p.parentNode) p.remove(); }, 2100);
+    }
+  };
+
+  const trigger3DFireworks = (target) => {
+    for (let f = 0; f < 3; f++) {
+      setTimeout(() => {
+        const burst = document.createElement('a-entity');
+        burst.setAttribute('position', `${(Math.random()-0.5)} 0 ${(Math.random()-0.5)}`);
+        target.appendChild(burst);
+        
+        const rocket = document.createElement('a-sphere');
+        rocket.setAttribute('radius', '0.02');
+        rocket.setAttribute('color', 'white');
+        rocket.setAttribute('animation', 'property: position; to: 0 1.5 0; dur: 600; easing: easeOutQuad');
+        burst.appendChild(rocket);
+        
+        setTimeout(() => {
+          if (rocket.parentNode) rocket.remove();
+          const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff'];
+          const burstColor = colors[Math.floor(Math.random()*colors.length)];
+          for (let i = 0; i < 20; i++) {
+            const spark = document.createElement('a-sphere');
+            spark.setAttribute('radius', '0.015');
+            spark.setAttribute('color', burstColor);
+            spark.setAttribute('position', '0 1.5 0');
+            const dx = (Math.random()-0.5)*1.5;
+            const dy = (Math.random()-0.5)*1.5 + 1.5;
+            const dz = (Math.random()-0.5)*1.5;
+            spark.setAttribute('animation__pos', `property: position; to: ${dx} ${dy} ${dz}; dur: 800; easing: easeOutQuad`);
+            spark.setAttribute('animation__op', 'property: opacity; to: 0; dur: 800');
+            burst.appendChild(spark);
+          }
+          setTimeout(() => { if(burst.parentNode) burst.remove(); }, 1000);
+        }, 600);
+      }, f * 400);
+    }
+  };
+
+  const trigger3DGolText = (target) => {
+    const golText = document.createElement('a-text');
+    golText.setAttribute('value', '¡GOL!');
+    golText.setAttribute('color', '#4fe0b5');
+    golText.setAttribute('align', 'center');
+    golText.setAttribute('position', '0 0.8 0');
+    golText.setAttribute('scale', '0 0 0');
+    golText.setAttribute('animation', 'property: scale; to: 2 2 2; dur: 500; easing: easeOutBack');
+    golText.setAttribute('animation__out', 'property: opacity; from: 1; to: 0; dur: 500; delay: 1200');
+    target.appendChild(golText);
+    setTimeout(() => { if(golText.parentNode) golText.remove(); }, 1800);
+  };
 
   document.querySelectorAll('[data-player-action]').forEach(btn => {
     btn.addEventListener('click', (e) => {
@@ -499,21 +780,14 @@ document.addEventListener('DOMContentLoaded', () => {
           return;
         }
         const currentMixer = model.getAttribute('animation-mixer');
-        let nextClip = mesh.animations.length > 0 ? mesh.animations[0].name : '*';
+        let nextClip = mesh.animations[0].name;
         if (currentMixer) {
           const currentClip = currentMixer.clip;
           const currentIndex = mesh.animations.findIndex(c => c.name === currentClip);
-          if (currentIndex >= 0 && currentIndex < mesh.animations.length - 1) {
-            nextClip = mesh.animations[currentIndex + 1].name;
-          } else {
-            nextClip = null;
-          }
+          const nextIndex = (currentIndex + 1) % mesh.animations.length;
+          nextClip = mesh.animations[nextIndex].name;
         }
-        if (!nextClip) {
-          model.removeAttribute('animation-mixer');
-        } else {
-          model.setAttribute('animation-mixer', `clip: ${nextClip}; loop: repeat; timeScale: 1`);
-        }
+        model.setAttribute('animation-mixer', `clip: ${nextClip}; loop: repeat; timeScale: 1`);
       }
       if (action === 'video') {
         const data = teamsData[activeTargetIndex];
@@ -524,106 +798,38 @@ document.addEventListener('DOMContentLoaded', () => {
             feedVideo.load();
             feedVideo.play();
           }
-          navigateTo('s2');
+          document.querySelector('[data-nav="s2"]').click();
         }
       }
-      if (action === 'info') {
-        const currentScale = model.getAttribute('scale') || {x:1, y:1, z:1};
-        model.setAttribute('animation', `property: scale; to: ${currentScale.x*1.5} ${currentScale.y*1.5} ${currentScale.z*1.5}; dir: alternate; dur: 200; loop: 2`);
+      if (action === 'rotate-left' || action === 'rotate-right') {
+        if (!model.object3D) return; 
+        const rotation = model.object3D.rotation;
+        const currentZ = THREE.MathUtils.radToDeg(rotation.z) || 0;
+        const offset = (action === 'rotate-left') ? -45 : 45;
+        
+        // Eliminar animación previa para evitar conflictos de interpolación
+        model.removeAttribute('animation__rot');
+        
+        // Forzar un pequeño delay para que A-Frame registre el cambio de atributo
+        model.setAttribute('animation__rot', {
+          property: 'rotation',
+          to: `90 0 ${currentZ + offset}`,
+          dur: 300,
+          easing: 'easeOutQuad'
+        });
       }
       if (action === 'fx') {
-        const currentRot = model.getAttribute('rotation');
-        model.setAttribute('animation__rot', { property: 'rotation', to: `${currentRot.x} ${currentRot.y + 90} ${currentRot.z}`, dur: 500, easing: 'easeOutQuad' });
+        // Disparar efectos 3D
+        trigger3DConfetti(model.parentElement);
+        trigger3DFireworks(model.parentElement);
+        trigger3DGolText(model.parentElement);
+
+        soundCelebration.play().catch(() => {
+          console.log("Audio play blocked");
+        });
       }
     });
   });
-
-  // Navegación entre pantallas — delegación en document para cubrir elementos dinámicos
-  function navigateTo(targetId) {
-    const targetScreen = document.querySelector(`[data-screen="${targetId}"]`);
-    if (!targetScreen) return;
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('screen--active'));
-    targetScreen.classList.add('screen--active');
-    const screenTitles = { s1: 'Inicio', s2: 'Feed', s3: 'Editor', s4: 'Escanear QR', s5: 'Trivia', s8: 'Guía' };
-    const titleSpan = document.getElementById('topbarTitle');
-    if (titleSpan) titleSpan.textContent = screenTitles[targetId] || 'Inicio';
-    if (targetId === 's5') {
-      initTriviaEvents();
-      if (preguntasAleatorias.length === 0) reiniciarTrivia();
-      else mostrarPregunta();
-    }
-    if (targetId === 's4') {
-      setTimeout(() => window.dispatchEvent(new Event('resize')), 200);
-      if (startScanBtn) startScanBtn.disabled = false;
-      const qrStatus = document.getElementById('qrStatus');
-      if (qrStatus) qrStatus.textContent = 'Listo. Pulsa iniciar.';
-    }
-    if (targetId === 's8') {
-      updateUnlockedVisuals();
-    }
-    if (targetId !== 's4' && stopScanBtn && !stopScanBtn.disabled) stopScanBtn.click();
-  }
-
-  document.addEventListener('click', (e) => {
-    const btn = e.target.closest('[data-nav]');
-    if (!btn) return;
-    navigateTo(btn.getAttribute('data-nav'));
-  });
-
-  // Editor de video
-  const videoInput = document.getElementById('videoInput');
-  const selectedVideo = document.getElementById('selectedVideo');
-  let currentVideoURL = null;
-  if (videoInput && selectedVideo) {
-    videoInput.addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-      if (currentVideoURL) URL.revokeObjectURL(currentVideoURL);
-      currentVideoURL = URL.createObjectURL(file);
-      selectedVideo.src = currentVideoURL;
-      selectedVideo.load();
-      selectedVideo.className = 'video';
-    });
-  }
-
-  document.querySelectorAll('.btn-thumb').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const videoSrc = btn.getAttribute('data-vsrc');
-      if (selectedVideo) {
-        selectedVideo.src = videoSrc;
-        selectedVideo.load();
-        selectedVideo.className = 'video';
-      }
-    });
-  });
-
-  document.querySelectorAll('.btn--filter').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const filter = btn.getAttribute('data-filter');
-      const feedCard = btn.closest('.feed-card');
-      if (feedCard) {
-        const cardVideo = feedCard.querySelector('.feed-card__video');
-        if (!cardVideo) return;
-        cardVideo.className = 'video feed-card__video';
-        if (filter !== 'none') cardVideo.classList.add(`f-${filter}`);
-        feedCard.querySelectorAll('.btn--filter').forEach(b => b.classList.remove('active-filter'));
-        btn.classList.add('active-filter');
-      } else if (selectedVideo) {
-        selectedVideo.className = 'video';
-        if (filter !== 'none') selectedVideo.classList.add(`f-${filter}`);
-        document.querySelectorAll('.filter-controls:not(.feed-card__filters) .btn--filter').forEach(b => b.classList.remove('active-filter'));
-        btn.classList.add('active-filter');
-      }
-    });
-  });
-
-  // Colección de equipos desbloqueados
-  const teamsCollection = [
-    { name: 'México', icon: '🇲🇽' }, { name: 'Alemania', icon: '🇩🇪' }, { name: 'Canadá', icon: '🇨🇦' },
-    { name: 'Corea del Sur', icon: '🇰🇷' }, { name: 'España', icon: '🇪🇸' }, { name: 'Francia', icon: '🇫🇷' },
-    { name: 'Argentina', icon: '🇦🇷' }, { name: 'Japón', icon: '🇯🇵' }, { name: 'Portugal', icon: '🇵🇹' },
-    { name: 'USA', icon: '🇺🇸' }
-  ];
 
   function updateUnlockedVisuals() {
     let unlocked = JSON.parse(localStorage.getItem('walletUnlocked')) || [];
@@ -643,28 +849,51 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  document.body.addEventListener('game-target-found', (e) => {
-    let idx = e.detail.targetIndex;
-    if (idx !== undefined && teamsCollection[idx]) {
-      let unlocked = JSON.parse(localStorage.getItem('walletUnlocked') || '[]');
-      if (!unlocked.includes(idx)) {
-        unlocked.push(idx);
-        localStorage.setItem('walletUnlocked', JSON.stringify(unlocked));
-        updateUnlockedVisuals();
-        const toast = document.createElement('div');
-        toast.textContent = `🏆 ¡${teamsCollection[idx].name} desbloqueado!`;
-        toast.style.cssText = 'position:fixed; bottom:80px; left:20px; background:#4fe0b5; color:#0b1020; padding:8px 16px; border-radius:40px; font-weight:bold; z-index:9999;';
-        document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), 2500);
-      }
-    }
-  });
-
   const clearBtn = document.getElementById('clearUnlockedBtn');
   if (clearBtn) clearBtn.addEventListener('click', () => {
     localStorage.removeItem('walletUnlocked');
     updateUnlockedVisuals();
   });
-  // Carga inicial al arrancar la app
-  updateUnlockedVisuals();
+
+  // --- NAVEGACIÓN ---
+  function handleNavigation(screenId) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('screen--active'));
+    const target = document.querySelector(`[data-screen="${screenId}"]`);
+    if (target) target.classList.add('screen--active');
+
+    const arSceneEl = document.getElementById('arScene');
+    if (arSceneEl) {
+      if (screenId === 's4') {
+        arSceneEl.style.visibility = 'visible';
+        arSceneEl.style.pointerEvents = 'auto';
+      } else {
+        arScene.style.display = 'none';
+        document.body.classList.remove('ar-active');
+        document.querySelectorAll('.mindar-ui-overlay, .mindar-ui-scanning, .mindar-ui-loading')
+          .forEach(el => el.style.display = 'none');
+        // NO llamar arSystem.stop() aquí
+        if (arCheckInterval) { clearInterval(arCheckInterval); arCheckInterval = null; }
+        if (qrScanInterval) { clearInterval(qrScanInterval); qrScanInterval = null; }
+        startScanBtn.disabled = false;
+        stopScanBtn.disabled = true;
+        activeModel = null;
+        activeTargetIndex = -1;
+      }
+    }
+
+    if (screenId === 's5') {
+      if (preguntasAleatorias.length === 0) reiniciarTrivia();
+      else initTriviaEvents();
+    }
+    if (screenId === 's8') updateUnlockedVisuals();
+  }
+
+  // Listener global para todos los botones de navegación
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-nav]');
+    if (btn) {
+      const dest = btn.getAttribute('data-nav');
+      handleNavigation(dest);
+    }
+  });
 });
