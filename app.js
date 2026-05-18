@@ -500,10 +500,9 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         }
         if (!nextClip) {
-          model.removeAttribute('animation-mixer');
-        } else {
-          model.setAttribute('animation-mixer', `clip: ${nextClip}; loop: repeat; timeScale: 1`);
+          nextClip = mesh.animations[0].name;
         }
+        model.setAttribute('animation-mixer', `clip: ${nextClip}; loop: repeat; timeScale: 1`);
       }
       if (action === 'video') {
         const data = teamsData[activeTargetIndex];
