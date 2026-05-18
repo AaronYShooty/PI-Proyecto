@@ -232,12 +232,12 @@ body{
 
 .video-filter-wrapper { position: relative; border-radius: 14px; overflow: hidden; }
 .video-filter-wrapper .feed-card__video { border-radius: 0; border: none; }
-.f-blur .video-filter-wrapper { filter: blur(5px); }
-.f-pixel .video-filter-wrapper { filter: url(#pixelate); image-rendering: pixelated; }
-.f-thermal .video-filter-wrapper { filter: invert(1) hue-rotate(180deg) saturate(3) contrast(1.5); }
-.f-pastel .video-filter-wrapper { filter: saturate(0.5) brightness(1.2); }
-.f-saturate .video-filter-wrapper { filter: saturate(3); }
-.f-smooth .video-filter-wrapper { filter: contrast(0.8) brightness(1.1) blur(1px); }
+.video-filter-wrapper.f-blur { filter: blur(5px); }
+.video-filter-wrapper.f-pixel { filter: url(#pixelate); image-rendering: pixelated; }
+.video-filter-wrapper.f-thermal { filter: invert(1) hue-rotate(180deg) saturate(3) contrast(1.5); }
+.video-filter-wrapper.f-pastel { filter: saturate(0.5) brightness(1.2); }
+.video-filter-wrapper.f-saturate { filter: saturate(3); }
+.video-filter-wrapper.f-smooth { filter: contrast(0.8) brightness(1.1) blur(1px); }
 
 /* --- FEED ESTILO RED SOCIAL --- */
 .feed-list {

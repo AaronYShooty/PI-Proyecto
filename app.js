@@ -636,9 +636,10 @@ document.addEventListener('DOMContentLoaded', () => {
       const feedCard = btn.closest('.feed-card');
       if (feedCard) {
         const cardVideo = feedCard.querySelector('.feed-card__video');
-        if (!cardVideo) return;
-        cardVideo.className = 'video feed-card__video';
-        if (filter !== 'none') cardVideo.classList.add(`f-${filter}`);
+if (!cardVideo) return;
+const wrapper = cardVideo.closest('.video-filter-wrapper') || cardVideo;
+wrapper.className = 'video-filter-wrapper';
+if (filter !== 'none') wrapper.classList.add(`f-${filter}`);
         feedCard.querySelectorAll('.btn--filter').forEach(b => b.classList.remove('active-filter'));
         btn.classList.add('active-filter');
       } else if (selectedVideo) {
