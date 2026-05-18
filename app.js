@@ -41,19 +41,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // qrStatus ahora existe en el HTML; se accede por función para evitar referencias stale
   const getQrStatus = () => document.getElementById('qrStatus');
 
-  // Redirigir console.log a la pantalla
+  // Logs solo en consola del navegador (sin overlay en pantalla)
   const originalLog = console.log;
-  console.log = (...args) => {
-    originalLog(...args);
-    const text = args.map(a => (typeof a === 'object' && a ? (a.tagName || '[Objeto]') : String(a))).join(' ');
-    window.logToScreen(text);
-  };
-  
   const originalError = console.error;
-  console.error = (...args) => {
-    originalError(...args);
-    window.logToScreen("ERROR: " + args.join(' '), '#ff4444');
-  };
 
   // ========== TRIVIA: 50 PREGUNTAS (5 por cada uno de los 10 equipos) ==========
   
@@ -541,7 +531,7 @@ document.addEventListener('DOMContentLoaded', () => {
         canvas.height = window.innerHeight;
         const particles = Array.from({length: 120}, () => ({
           x: canvas.width / 2,
-          y: canvas.height / 2,
+          y: canvas.height * 0.35,
           vx: (Math.random() - 0.5) * 12,
           vy: (Math.random() - 0.8) * 14,
           color: `hsl(${Math.random()*360},90%,60%)`,
