@@ -532,8 +532,49 @@ document.addEventListener('DOMContentLoaded', () => {
         model.setAttribute('animation', `property: scale; to: ${currentScale.x*1.5} ${currentScale.y*1.5} ${currentScale.z*1.5}; dir: alternate; dur: 200; loop: 2`);
       }
       if (action === 'fx') {
-        const currentRot = model.getAttribute('rotation');
-        model.setAttribute('animation__rot', { property: 'rotation', to: `${currentRot.x} ${currentRot.y + 90} ${currentRot.z}`, dur: 500, easing: 'easeOutQuad' });
+        // Confeti 2D sobre el canvas AR
+        const canvas = document.createElement('canvas');
+        canvas.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999';
+        document.body.appendChild(canvas);
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        const particles = Array.from({length: 120}, () => ({
+          x: canvas.width / 2,
+          y: canvas.height / 2,
+          vx: (Math.random() - 0.5) * 12,
+          vy: (Math.random() - 0.8) * 14,
+          color: `hsl(${Math.random()*360},90%,60%)`,
+          size: Math.random() * 10 + 5,
+          alpha: 1,
+          rotation: Math.random() * Math.PI * 2,
+          rotSpeed: (Math.random() - 0.5) * 0.2
+        }));
+        let frame;
+        const animate = () => {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          let alive = false;
+          particles.forEach(p => {
+            p.x += p.vx;
+            p.y += p.vy;
+            p.vy += 0.3;
+            p.alpha -= 0.012;
+            p.rotation += p.rotSpeed;
+            if (p.alpha > 0) {
+              alive = true;
+              ctx.save();
+              ctx.globalAlpha = p.alpha;
+              ctx.fillStyle = p.color;
+              ctx.translate(p.x, p.y);
+              ctx.rotate(p.rotation);
+              ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size * 0.5);
+              ctx.restore();
+            }
+          });
+          if (alive) frame = requestAnimationFrame(animate);
+          else canvas.remove();
+        };
+        animate();
       }
     });
   });
